@@ -73,7 +73,7 @@ namespace analysistools.api.Controllers.IDRControllers
             string rawStations = stringBuilder.ToString();
             string familyICTs = rawStations.Remove(rawStations.Length - 1, 1);
 
-            List<ProducedUnitsDTO> producedUnitsList = _mesRepository.obtenerTodasLasProducidas(familyICTs, family.Id, FromDate, ToDate);
+            List<ProducedUnitsDTO> producedUnitsList = _mesRepository.GetAllProducedIDR(familyICTs, family.Id, FromDate, ToDate);
             foreach (ProducedUnitsDTO item in producedUnitsList)
             {
                 await _context.ProducedUnits.AddAsync(new ProducedUnits()

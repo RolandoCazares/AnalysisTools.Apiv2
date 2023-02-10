@@ -361,21 +361,7 @@ namespace analysistools.api.Helpers
 
         }
 
-        public static string obtenerModelo(string serie)
-        {
-            string getModelQuery = $"SELECT AL1.RUNID, AL2.PDK_MATERIAL FROM EVAPROD.PD_LFD_RUN AL1, EVAPROD.PD_LFD_MAT AL2 WHERE (AL2.PRD_MAT_SID=AL1.PRD_MAT_SID)  AND (AL1.RUNID='{serie}') OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY";
-            // ORDER BY AL1.RUN_DATE DESC OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY
-            DataTable queryResult = _context.RunQuery(getModelQuery);
-
-            string result = "";
-            if (queryResult.Rows.Count > 0)
-            {
-                result = queryResult.Rows[0]["PDK_MATERIAL"].ToString();
-            }
-            return result;
-        }
-
-        public List<ProducedUnitsDTO> DataTableToGetAllUnitsProduced(string FamilyICTs, int FamilyID, DateTime FromDate, DateTime ToDate)
+        public static List<ProducedUnitsDTO> DataTableToGetAllUnitsProduced(string FamilyICTs, int FamilyID, DateTime FromDate, DateTime ToDate)
         {
             List<ProducedUnitsDTO> result = new List<ProducedUnitsDTO>();
             double diffDays = (ToDate - FromDate).TotalDays;
@@ -396,6 +382,20 @@ namespace analysistools.api.Helpers
                     Date = _FromDate,
                     FamilyID = FamilyID
                 });
+            }
+            return result;
+        }
+
+        public static string obtenerModelo(string serie)
+        {
+            string getModelQuery = $"SELECT AL1.RUNID, AL2.PDK_MATERIAL FROM EVAPROD.PD_LFD_RUN AL1, EVAPROD.PD_LFD_MAT AL2 WHERE (AL2.PRD_MAT_SID=AL1.PRD_MAT_SID)  AND (AL1.RUNID='{serie}') OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY";
+            // ORDER BY AL1.RUN_DATE DESC OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY
+            DataTable queryResult = _context.RunQuery(getModelQuery);
+
+            string result = "";
+            if (queryResult.Rows.Count > 0)
+            {
+                result = queryResult.Rows[0]["PDK_MATERIAL"].ToString();
             }
             return result;
         }
