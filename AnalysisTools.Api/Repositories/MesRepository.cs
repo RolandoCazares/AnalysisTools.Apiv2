@@ -222,7 +222,7 @@ namespace analysistools.api.Repositories
         /// <param name="SerialNumber"></param>
         /// 
 
-        public List<Failure> obtenerTodasFallas(DateTime FromDate, DateTime ToDate)
+        public List<Failure> GetFailuresIDR(DateTime FromDate, DateTime ToDate)
         {
             
             List<Failure> Resultado = new List<Failure>();
@@ -239,30 +239,7 @@ namespace analysistools.api.Repositories
 
             return Resultado;
         }
-
-        private void FillComponentFilter(bool analysisCommentHasNumber, bool partNumberCommentHasNumber, string rawComponent, ref Failure failure)
-        {
-            if (partNumberCommentHasNumber)
-            {
-                failure.Component = rawComponent.ToUpper();
-                //Console.WriteLine("Component detected in part number, failure.Component now is: " + failure.Component);
-            }
-            else if (analysisCommentHasNumber)
-            {
-                var m = Regex.Match(failure.AnalysisComment, @".{2}[0-9]+");
-                failure.Component = m.Groups[0].Value.ToUpper();
-                //Console.WriteLine("Component detected in analysis comment, now failure.Component is: " + failure.Component);
-            }
-            //if ((!analysisCommentHasNumber && partNumberCommentHasNumber) || (analysisCommentHasNumber && partNumberCommentHasNumber)) failure.Component = rawComponent.ToUpper();
-            //if (!analysisCommentHasNumber && partNumberCommentHasNumber) failure.Component = rawComponent.ToUpper();
-            //if (analysisCommentHasNumber && !partNumberCommentHasNumber)
-            //{
-            //    var m = Regex.Match(failure.AnalysisComment, @".{2}[0-9]+");
-            //    failure.Component = m.Groups[0].Value.ToUpper();
-            //};
-        }
-
-        public List<ProducedUnitsDTO> obtenerTodasLasProducidas(string FamilyICTs, int FamilyID, DateTime FromDate, DateTime ToDate)
+        public List<ProducedUnitsDTO> GetAllProducedIDR(string FamilyICTs, int FamilyID, DateTime FromDate, DateTime ToDate)
         {
             List<ProducedUnitsDTO> result = new List<ProducedUnitsDTO>();
             double diffDays = (ToDate - FromDate).TotalDays;
@@ -276,7 +253,7 @@ namespace analysistools.api.Repositories
                 string toDate = _ToDate.ToString("dd-MM-yyyy HH:mm:ss");
                 Console.WriteLine($"Produced from Family with ID {FamilyID} from: {fromDate} to {toDate}");
                 string producedQuery = $"SELECT COUNT(*) AS PRODUCED FROM (SELECT DISTINCT RUNID FROM (SELECT AL1.RUNID, AL1.RUN_STATE, AL1.RUN_DATE, AL4.BMT_NAME, AL2.PDK_MATERIAL, AL3.PRP_VAR, AL1.RUNID_TYPE, AL5.PDK_AUFTR FROM EVAPROD.PD_LFD_RUN AL1, EVAPROD.PD_LFD_MAT AL2, EVAPROD.PD_STM_PRP AL3, EVACOMP.PD_LFD_BMN AL4, EVAPROD.PD_LFD_AUF AL5 WHERE (AL2.PRD_MAT_SID=AL1.PRD_MAT_SID AND AL4.BMT_DAT_ID=AL1.BMT_DAT_ID AND AL1.PRP_DATE_ID=AL3.PRP_DATE_ID AND AL5.PRD_SPC_SID=AL1.PRD_SPC_SID)  AND (AL3.PRP_VAR LIKE '%ICT%' AND AL1.RUN_DATE BETWEEN TO_DATE('{fromDate}', 'DD-MM-yyyy HH24:MI:SS') AND TO_DATE('{toDate}', 'DD-MM-yyyy HH24:MI:SS') AND AL2.PDK_MATERIAL LIKE 'A%' AND AL1.RUN_STATE='P' AND (NOT AL5.PDK_AUFTR LIKE '%gold%') AND AL4.BMT_NAME IN ({FamilyICTs}))))";
-                DataTable queryResult = dbContext.RunQuery(producedQuery);
+                DataTable queryResult = _context.RunQuery(producedQuery);
                 result.Add(new ProducedUnitsDTO()
                 {
                     Quantity = int.Parse(queryResult.Rows[0]["PRODUCED"].ToString()),
@@ -287,16 +264,12 @@ namespace analysistools.api.Repositories
             return result;
         }
 
-        private string GetStationQuery(string SerialNumber)
-        {
-            return $"SELECT AL1.RUNID, AL1.RUN_STATE, AL1.RUN_DATE, AL6.BMT_NAME, AL1.RUNID_TYPE FROM EVAPROD.PD_LFD_RUN AL1, EVAPROD.PD_STM_PRP AL3, EVACOMP.PD_LFD_BMN AL6 WHERE (AL6.BMT_DAT_ID=AL1.BMT_DAT_ID AND AL1.PRP_DATE_ID=AL3.PRP_DATE_ID)  AND (AL3.PRP_VAR LIKE '%ICT%' AND AL1.RUNID='{SerialNumber}' AND (AL6.BMT_NAME LIKE '%ICT%'))";
-        }
 
         public string obtenerModelo(string serie)
         {
             string getModelQuery = $"SELECT AL1.RUNID, AL2.PDK_MATERIAL FROM EVAPROD.PD_LFD_RUN AL1, EVAPROD.PD_LFD_MAT AL2 WHERE (AL2.PRD_MAT_SID=AL1.PRD_MAT_SID)  AND (AL1.RUNID='{serie}') OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY";
             // ORDER BY AL1.RUN_DATE DESC OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY
-            DataTable queryResult = dbContext.RunQuery(getModelQuery);
+            DataTable queryResult = dbcontext.RunQuery(getModelQuery);
 
             string result = "";
             if (queryResult.Rows.Count > 0)
@@ -305,5 +278,7 @@ namespace analysistools.api.Repositories
             }
             return result;
         }
+
+        
     }
 }

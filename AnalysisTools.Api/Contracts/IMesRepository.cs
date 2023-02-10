@@ -12,7 +12,7 @@ namespace analysistools.api.Contracts
         List<ICTTest> GetICTTests(string Model, string Component, string TestNumber, DateTime fromDate, DateTime toDate);
         List<ScrnDetails> GetSCRNprocess(string SerialNumber);
         List<Scrn2020Details> GetSCRN2020process(DateTime fromDate, DateTime toDate, string Station, string IdType);
-        List<Failure> obtenerTodasFallas(DateTime fromDate, DateTime toDate);
+        List<Failure> GetFailuresIDR(DateTime fromDate, DateTime toDate);
         List<ProducedUnitsDTO> obtenerTodasLasProducidas(string FamilyICTs, int FamilyID, DateTime FromDate, DateTime ToDate);
 
         string obtenerModelo(string serie);

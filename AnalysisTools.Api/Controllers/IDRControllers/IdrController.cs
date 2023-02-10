@@ -36,7 +36,7 @@ namespace analysistools.api.Controllers.IDRControllers
 
             List<Failure> failures = new List<Failure>();
 
-            failures = _mesRepository.obtenerTodasFallas(FromDate, ToDate);
+            failures = _mesRepository.GetFailuresIDR(FromDate, ToDate);
 
             await _context.Failures.AddRangeAsync(failures);
             await _context.SaveChangesAsync();
