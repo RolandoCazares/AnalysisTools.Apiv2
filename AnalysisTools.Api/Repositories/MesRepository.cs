@@ -239,6 +239,7 @@ namespace analysistools.api.Repositories
 
             return Resultado;
         }
+
         public List<ProducedUnitsDTO> GetAllProducedIDR(string FamilyICTs, int FamilyID, DateTime FromDate, DateTime ToDate)
         {
             List<ProducedUnitsDTO> result = new List<ProducedUnitsDTO>();
@@ -252,13 +253,10 @@ namespace analysistools.api.Repositories
                 string fromDate = _FromDate.ToString("dd-MM-yyyy HH:mm:ss");
                 string toDate = _ToDate.ToString("dd-MM-yyyy HH:mm:ss");
                 Console.WriteLine($"Produced from Family with ID {FamilyID} from: {fromDate} to {toDate}");
+                string producedIDRQuery = MesQueryFabric.QueryForProducedIDR(FamilyICTs, fromDate, toDate);
+                DataTable queryResult = dbContext.RunQuery(producedIDRQuery);
 
 
-                string producedQuery = MesQueryFabric.QueryForProducedIDR(FamilyICTs, FromDate, ToDate)
-
-
-                    $"SELECT COUNT(*) AS PRODUCED FROM (SELECT DISTINCT RUNID FROM (SELECT AL1.RUNID, AL1.RUN_STATE, AL1.RUN_DATE, AL4.BMT_NAME, AL2.PDK_MATERIAL, AL3.PRP_VAR, AL1.RUNID_TYPE, AL5.PDK_AUFTR FROM EVAPROD.PD_LFD_RUN AL1, EVAPROD.PD_LFD_MAT AL2, EVAPROD.PD_STM_PRP AL3, EVACOMP.PD_LFD_BMN AL4, EVAPROD.PD_LFD_AUF AL5 WHERE (AL2.PRD_MAT_SID=AL1.PRD_MAT_SID AND AL4.BMT_DAT_ID=AL1.BMT_DAT_ID AND AL1.PRP_DATE_ID=AL3.PRP_DATE_ID AND AL5.PRD_SPC_SID=AL1.PRD_SPC_SID)  AND (AL3.PRP_VAR LIKE '%ICT%' AND AL1.RUN_DATE BETWEEN TO_DATE('{fromDate}', 'DD-MM-yyyy HH24:MI:SS') AND TO_DATE('{toDate}', 'DD-MM-yyyy HH24:MI:SS') AND AL2.PDK_MATERIAL LIKE 'A%' AND AL1.RUN_STATE='P' AND (NOT AL5.PDK_AUFTR LIKE '%gold%') AND AL4.BMT_NAME IN ({FamilyICTs}))))";
-                DataTable queryResult = _context.RunQuery(producedQuery);
                 result.Add(new ProducedUnitsDTO()
                 {
                     Quantity = int.Parse(queryResult.Rows[0]["PRODUCED"].ToString()),
@@ -268,22 +266,5 @@ namespace analysistools.api.Repositories
             }
             return result;
         }
-
-
-        public string obtenerModelo(string serie)
-        {
-            string getModelQuery = $"SELECT AL1.RUNID, AL2.PDK_MATERIAL FROM EVAPROD.PD_LFD_RUN AL1, EVAPROD.PD_LFD_MAT AL2 WHERE (AL2.PRD_MAT_SID=AL1.PRD_MAT_SID)  AND (AL1.RUNID='{serie}') OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY";
-            // ORDER BY AL1.RUN_DATE DESC OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY
-            DataTable queryResult = dbcontext.RunQuery(getModelQuery);
-
-            string result = "";
-            if (queryResult.Rows.Count > 0)
-            {
-                result = queryResult.Rows[0]["PDK_MATERIAL"].ToString();
-            }
-            return result;
-        }
-
-        
     }
 }

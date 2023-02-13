@@ -5,7 +5,6 @@ using analysistools.api.Models.Optical;
 using analysistools.api.Models.Tickets;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
-using static System.Collections.Specialized.BitVector32;
 
 namespace analysistools.api.Data
 {

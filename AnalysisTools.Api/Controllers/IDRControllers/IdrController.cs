@@ -51,10 +51,10 @@ namespace analysistools.api.Controllers.IDRControllers
             DateTime FromDate = DateTime.ParseExact(fromDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
             DateTime ToDate = DateTime.ParseExact(toDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
             double diffDays = (ToDate - FromDate).TotalDays;
-            if (!(diffDays > 0 && diffDays <= 31)) return BadRequest("Solo se permite maximo 31 dias");
+            if (!(diffDays > 0 && diffDays <= 31)) return BadRequest("Only maximum 31 days are allowed");
 
             FamilyIDR family = await _context.FamiliesIDR.FindAsync(familyId);
-            if (family == null) return NotFound("La familia no existe.");
+            if (family == null) return NotFound("The family doesn´t exist");
             List<LineIDR> lines = _context.LinesIDR.Where(l => l.FamilyId == family.Id).ToList();
 
             List<StationIDR> stations = new List<StationIDR>();
