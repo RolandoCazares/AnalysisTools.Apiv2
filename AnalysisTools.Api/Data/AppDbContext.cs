@@ -1,5 +1,6 @@
 ﻿using analysistools.api.Models.Authentication;
 using analysistools.api.Models.Continental;
+using analysistools.api.Models.FPY;
 using analysistools.api.Models.IDR;
 using analysistools.api.Models.Optical;
 using analysistools.api.Models.Tickets;
@@ -25,6 +26,8 @@ namespace analysistools.api.Data
         public DbSet<StationIDR> StationsIDR { get; set; }
         public DbSet<Failure> Failures { get; set; }
         public DbSet<ProducedUnits> ProducedUnits { get; set; }
+        public DbSet<RAW_DATA> RAW_DATAs { get; set; }
+        public DbSet<RAW_FAIL> RAW_FAILs { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -113,6 +116,18 @@ namespace analysistools.api.Data
             {
                 entity.HasKey(e => e.ID);
                 entity.HasOne(e => e.FamilyIDR).WithMany(l => l.ProducedUnitsIDR).HasForeignKey(p => p.FamilyID);
+            });
+
+            modelBuilder.Entity<RAW_DATA>().ToTable("FPYDATA");
+            modelBuilder.Entity<RAW_DATA>(entity =>
+            {
+                entity.HasKey(e => e.ID);
+            });
+
+            modelBuilder.Entity<RAW_FAIL>().ToTable("FPYFAIL");
+            modelBuilder.Entity<RAW_FAIL>(entity =>
+            {
+                entity.HasKey(e => e.ID);
             });
 
             base.OnModelCreating(modelBuilder);

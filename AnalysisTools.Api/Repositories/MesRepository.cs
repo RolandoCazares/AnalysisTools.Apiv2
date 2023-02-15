@@ -10,6 +10,7 @@ using System.Data;
 using System.Text.RegularExpressions;
 using analysistools.api.Models.IDR.DTO;
 using analysistools.api.Models.IDR;
+using analysistools.api.Models.FPY;
 
 namespace analysistools.api.Repositories
 {
@@ -265,6 +266,38 @@ namespace analysistools.api.Repositories
                 });
             }
             return result;
+        }
+
+        public List<RAW_DATA> GetRAW_DATAs (string Producto, DateTime FromDate, DateTime ToDate)
+        {
+
+            List<RAW_DATA> Resultado = new List<RAW_DATA>();
+            try
+            {
+                string DataQueryFPYDATAs = MesQueryFabric.QueryForDataFPY(Producto, FromDate, ToDate);
+                DataTable queryResult = dbContext.RunQuery(DataQueryFPYDATAs);
+                Resultado = DataTableHelper.DataTableToDATA(queryResult);
+
+            }
+            catch (Exception) { }
+
+            return Resultado;
+        }
+
+        public List<RAW_FAIL> GetRAW_Fails(string Producto, DateTime FromDate, DateTime ToDate)
+        {
+
+            List<RAW_FAIL> Resultado = new List<RAW_FAIL>();
+            try
+            {
+                string DataQueryFPYFails = MesQueryFabric.QueryForDataFPY(Producto, FromDate, ToDate);
+                DataTable queryResult = dbContext.RunQuery(DataQueryFPYFails);
+                Resultado = DataTableHelper.DataTableToFailFPY(queryResult);
+
+            }
+            catch (Exception) { }
+
+            return Resultado;
         }
     }
 }

@@ -26,7 +26,7 @@ namespace analysistools.api.Controllers.IDRControllers
         }
 
         [HttpGet("MES/failures/{fromDate}/{toDate}")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
         public async Task<ActionResult<List<Failure>>> GetFailuresFromMES(string fromDate, string toDate)
         {
             DateTime FromDate = DateTime.ParseExact(fromDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
