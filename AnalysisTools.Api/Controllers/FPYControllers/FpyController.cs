@@ -31,7 +31,7 @@ namespace analysistools.api.Controllers.FPYControllers
             DateTime FromDate = DateTime.ParseExact(fromDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
             DateTime ToDate = DateTime.ParseExact(toDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
             double diffDays = (ToDate - FromDate).TotalDays;
-            if (!(diffDays > 0 && diffDays <= 7)) return BadRequest("Solo se permite maximo 7 dias");
+            if (!(diffDays > 0 && diffDays <= 30)) return BadRequest("Solo se permite maximo 7 dias");
             List<RAW_DATA> FPYData = new List<RAW_DATA>();
 
             FPYData = _mesRepository.GetRAW_DATAs(Producto, FromDate, ToDate);
@@ -44,7 +44,7 @@ namespace analysistools.api.Controllers.FPYControllers
 
         [HttpGet("MES/Fails/{Producto}/{fromDate}/{toDate}")]
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
-        public async Task<ActionResult<int[]>> GetFailsFromMES(string Producto, string fromDate, string toDate)
+        public async Task<ActionResult<List<RAW_FAIL>>> GetFailsFromMES(string Producto, string fromDate, string toDate)
         {
             DateTime FromDate = DateTime.ParseExact(fromDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
             DateTime ToDate = DateTime.ParseExact(toDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);

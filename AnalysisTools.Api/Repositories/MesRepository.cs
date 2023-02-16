@@ -222,25 +222,6 @@ namespace analysistools.api.Repositories
         /// </summary>
         /// <param name="SerialNumber"></param>
         /// 
-
-        public List<Failure> GetFailuresIDR(DateTime FromDate, DateTime ToDate)
-        {
-            
-            List<Failure> Resultado = new List<Failure>();
-            try
-            {
-                string FailsQuery = MesQueryFabric.QueryFails(FromDate, ToDate);
-                DataTable queryResult = dbContext.RunQuery(FailsQuery);
-                Resultado = DataTableHelper.DataTableToFailure(queryResult);
-
-            }
-            catch (Exception) { }
-
-            Resultado = Resultado.GroupBy(f => f.Serial_Number).Select(f => f.First()).ToList();
-
-            return Resultado;
-        }
-
         public List<ProducedUnitsDTO> GetAllProducedIDR(string FamilyICTs, int FamilyID, DateTime FromDate, DateTime ToDate)
         {
             List<ProducedUnitsDTO> result = new List<ProducedUnitsDTO>();
@@ -268,6 +249,26 @@ namespace analysistools.api.Repositories
             return result;
         }
 
+        public List<Failure> GetFailuresIDR(DateTime FromDate, DateTime ToDate)
+        {
+            
+            List<Failure> Resultado = new List<Failure>();
+            try
+            {
+                string FailsQuery = MesQueryFabric.QueryFails(FromDate, ToDate);
+                DataTable queryResult = dbContext.RunQuery(FailsQuery);
+                Resultado = DataTableHelper.DataTableToFailure(queryResult);
+
+            }
+            catch (Exception) { }
+
+            Resultado = Resultado.GroupBy(f => f.Serial_Number).Select(f => f.First()).ToList();
+
+            return Resultado;
+        }
+
+        
+
         public List<RAW_DATA> GetRAW_DATAs (string Producto, DateTime FromDate, DateTime ToDate)
         {
 
@@ -280,7 +281,7 @@ namespace analysistools.api.Repositories
 
             }
             catch (Exception) { }
-
+            Resultado = Resultado.GroupBy(f => f.SerialNumber).Select(f => f.First()).ToList();
             return Resultado;
         }
 
