@@ -365,48 +365,6 @@ namespace analysistools.api.Helpers
 
         }
 
-        public static List<RAW_FAIL> DataTableToFailFPY(DataTable data)
-        {
-
-            List<RAW_FAIL> result = new List<RAW_FAIL>();
-            foreach (DataRow row in data.Rows)
-            {
-                try
-                {
-                    //Console.WriteLine("==========");
-                    string dateTimeAsString = row["RUN_DATE"].ToString();
-                    RAW_FAIL failure = new RAW_FAIL
-                    {
-                        SerialNumber = row["AL1.RUNID"].ToString(),
-                        AUFTR = row["AL7.PDK_AUFTR"].ToString(),
-                        STATE = row["AL1.RUN_STATE"].ToString(),
-                        DATE = DateTime.Parse(dateTimeAsString),
-
-                        MATERIAL = row["AL2.PDK_MATERIAL"].ToString(),
-                        NAME = row["AL6.BMT_NAME"].ToString(),
-                        VAR = row["AL3.PRP_VAR"].ToString(),
-                        IDTYPE = row["AL1.RUNID_TYPE"].ToString(),
-                        NUM = row["AL4.MRK_NUM"].ToString(),
-                        BEZ = row["AL5.MRK_BEZ"].ToString(),
-                        WERT = row["AL4.MRK_WERT"].ToString(),
-                        EIN_GUT = row["AL4.MRK_EIN_GUT"].ToString(),
-                        USG = row["AL5.MRK_USG"].ToString(),
-                        OSG = row["AL5.MRK_OSG"].ToString(),
-
-                    };
-
-
-                    result.Add(failure);
-
-                }
-
-                catch (Exception) { }
-
-            }
-            return result;
-
-        }
-
         public static List<ProducedUnitsDTO> DataTableToGetAllUnitsProduced(string FamilyICTs, int FamilyID, DateTime FromDate, DateTime ToDate)
         {
             List<ProducedUnitsDTO> result = new List<ProducedUnitsDTO>();
@@ -434,37 +392,65 @@ namespace analysistools.api.Helpers
 
         public static List<RAW_DATA> DataTableToDATA(DataTable data)
         {
-            
+
             List<RAW_DATA> result = new List<RAW_DATA>();
             foreach (DataRow row in data.Rows)
             {
                 try
                 {
-
-                    string serialNumber = row["RUNID"].ToString();
-                    string auftr = row["PDK_AUFTR"].ToString();
                     string dateTimeAsString = row["RUN_DATE"].ToString();
-                    //DateTime date = DateTime.Parse(dateTimeAsString);
-                    string state = row["RUN_STATE"].ToString();
-                    string material = row["PDK_MATERIAL"].ToString();
-                    string name = row["BMT_NAME"].ToString();
-                    string var = row["PRP_VAR"].ToString();
-                    string idtype = row["RUNID_TYPE"].ToString();
-
-
-                    result.Add(new RAW_DATA()
+                    RAW_DATA failure = new RAW_DATA
                     {
-                        SerialNumber = serialNumber,
-                        AUFTR = auftr,
-                        DATE= dateTimeAsString,
-                        STATE =state,
-                        MATERIAL = material,
-                        NAME = name,
-                        VAR = var,
-                        IDTYPE = idtype,
-                    });
+                        SerialNumber = row["RUNID"].ToString(),
+                        AUFTR = row["PDK_AUFTR"].ToString(),
+                        STATE = row["RUN_STATE"].ToString(),
+                        DATE = DateTime.Parse(dateTimeAsString),
+                        MATERIAL = row["PDK_MATERIAL"].ToString(),
+                        NAME = row["BMT_NAME"].ToString(),
+                        VAR = row["PRP_VAR"].ToString(),
+                        IDTYPE = row["RUNID_TYPE"].ToString(),
+
+                    };
+                    result.Add(failure);
                 }
 
+                catch (Exception) { }
+            }
+            return result;
+        }
+
+        public static List<RAW_FAIL> DataTableToFailFPY(DataTable data)
+        {
+
+            List<RAW_FAIL> result = new List<RAW_FAIL>();
+            foreach (DataRow row in data.Rows)
+            {
+                try
+                {
+                    //Console.WriteLine("==========");
+                    string dateTimeAsString = row["RUN_DATE"].ToString();
+                    RAW_FAIL failure = new RAW_FAIL
+                    {
+                        SerialNumber = row["RUNID"].ToString(),
+                        AUFTR = row["PDK_AUFTR"].ToString(),
+                        STATE = row["RUN_STATE"].ToString(),
+                        DATE = DateTime.Parse(dateTimeAsString),
+                        MATERIAL = row["PDK_MATERIAL"].ToString(),
+                        NAME = row["BMT_NAME"].ToString(),
+                        VAR = row["PRP_VAR"].ToString(),
+                        IDTYPE = row["RUNID_TYPE"].ToString(),
+                        NUM = row["MRK_NUM"].ToString(),
+                        BEZ = row["MRK_BEZ"].ToString(),
+                        EIN_GUT = row["MRK_EIN_GUT"].ToString(),
+                        USG = row["MRK_USG"].ToString(),
+                        OSG = row["MRK_OSG"].ToString(),
+
+                    };
+
+
+                    result.Add(failure);
+
+                }
 
                 catch (Exception) { }
 
@@ -472,6 +458,7 @@ namespace analysistools.api.Helpers
             return result;
 
         }
+
 
         
     }

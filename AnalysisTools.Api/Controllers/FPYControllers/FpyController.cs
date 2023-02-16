@@ -28,8 +28,8 @@ namespace analysistools.api.Controllers.FPYControllers
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
         public async Task<ActionResult<List<RAW_DATA>>> GetDATAFromMES(string Producto,string fromDate, string toDate)
         {
-            DateTime FromDate = DateTime.ParseExact(fromDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
-            DateTime ToDate = DateTime.ParseExact(toDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
+            DateTime FromDate = DateTime.ParseExact(fromDate, "dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+            DateTime ToDate = DateTime.ParseExact(toDate, "dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture);
             double diffDays = (ToDate - FromDate).TotalDays;
             if (!(diffDays > 0 && diffDays <= 30)) return BadRequest("Solo se permite maximo 7 dias");
             List<RAW_DATA> FPYData = new List<RAW_DATA>();

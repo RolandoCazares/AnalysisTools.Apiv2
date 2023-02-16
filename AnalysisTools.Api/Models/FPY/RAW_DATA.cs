@@ -9,7 +9,7 @@
 
         public string STATE { get; set; }
 
-        public string DATE { get; set; }
+        public DateTime DATE { get; set; }
 
         public string MATERIAL { get; set; }
 

@@ -267,8 +267,6 @@ namespace analysistools.api.Repositories
             return Resultado;
         }
 
-        
-
         public List<RAW_DATA> GetRAW_DATAs (string Producto, DateTime FromDate, DateTime ToDate)
         {
 
@@ -291,13 +289,13 @@ namespace analysistools.api.Repositories
             List<RAW_FAIL> Resultado = new List<RAW_FAIL>();
             try
             {
-                string DataQueryFPYFails = MesQueryFabric.QueryForDataFPY(Producto, FromDate, ToDate);
+                string DataQueryFPYFails = MesQueryFabric.QueryForFailFPY(Producto, FromDate, ToDate);
                 DataTable queryResult = dbContext.RunQuery(DataQueryFPYFails);
                 Resultado = DataTableHelper.DataTableToFailFPY(queryResult);
 
             }
             catch (Exception) { }
-
+            Resultado = Resultado.GroupBy(f => f.SerialNumber).Select(f => f.First()).ToList();
             return Resultado;
         }
     }

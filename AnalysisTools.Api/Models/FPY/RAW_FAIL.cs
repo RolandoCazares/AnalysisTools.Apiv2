@@ -23,8 +23,6 @@
 
         public string BEZ { get; set; }
 
-        public string WERT { get; set; }
-
         public string EIN_GUT { get; set; }
 
         public string USG { get; set; }
