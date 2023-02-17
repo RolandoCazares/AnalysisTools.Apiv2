@@ -28,8 +28,8 @@ namespace analysistools.api.Controllers.FPYControllers
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
         public async Task<ActionResult<List<RAW_DATA>>> GetDATAFromMES(string Producto,string fromDate, string toDate)
         {
-            DateTime FromDate = DateTime.ParseExact(fromDate, "dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture);
-            DateTime ToDate = DateTime.ParseExact(toDate, "dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+            DateTime FromDate = DateTime.ParseExact(fromDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
+            DateTime ToDate = DateTime.ParseExact(toDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
             double diffDays = (ToDate - FromDate).TotalDays;
             if (!(diffDays > 0 && diffDays <= 30)) return BadRequest("Solo se permite maximo 7 dias");
             List<RAW_DATA> FPYData = new List<RAW_DATA>();
@@ -61,7 +61,7 @@ namespace analysistools.api.Controllers.FPYControllers
             return Ok(FPYFail);
         }
 
-        [HttpGet("Data/{FamilyId}/{fromDate}/{toDate}")]
+        [HttpGet("DataByFamilyID/{FamilyId}/{fromDate}/{toDate}")]
         public async Task<ActionResult> GetDataFromLocalDB(int FamilyId, string fromDate, string toDate)
         {
             DateTime FromDate = DateTime.ParseExact(fromDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
@@ -98,6 +98,32 @@ namespace analysistools.api.Controllers.FPYControllers
             result = result.OrderBy(f => f.DATE).ToList();
             return Ok(result);
         }
+
+
+        [HttpGet("DataByProcess/{ProcessID}/{fromDate}/{toDate}")]
+        public async Task<ActionResult> GetDataFromLocalDBbyProcess(int ProcessID, string fromDate, string toDate)
+        {
+            DateTime FromDate = DateTime.ParseExact(fromDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
+            DateTime ToDate = DateTime.ParseExact(toDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
+
+            List<RAW_DATA> result = new List<RAW_DATA>();
+
+            ProcessFPY Process = await _context.ProcessesFPY.FindAsync(ProcessID);
+            if (Process == null) return NotFound("The Process doesn`t exist.");
+            List<StationFPY> stations = _context.StationsFPY.Where(l => l.ProcessID == Process.Id).ToList();
+
+            List<RAW_DATA> FaultsFilteredByStation = new List<RAW_DATA>();
+            foreach (StationFPY station in stations)
+            {
+                FaultsFilteredByStation.AddRange(_context.RAW_DATAs.Where(f => f.NAME == station.Name && f.DATE >= FromDate && f.DATE <= ToDate).ToList());
+            }
+            result.AddRange(FaultsFilteredByStation);
+
+            result = result.OrderBy(f => f.DATE).ToList();
+            return Ok(result);
+        }
+
+       
     }
 }
 

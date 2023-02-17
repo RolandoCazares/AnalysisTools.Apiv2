@@ -16,8 +16,8 @@ namespace analysistools.api.Data
         private OracleDataAdapter oracleDataAdapter;
         // NOTE
         // Store this information outside the project.
-        private static string connectionString = "Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=NGDB021-vip.auto.contiwan.com)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=REPORTING.auto.contiwan.com)));User ID=ANALYSIS_IC;;Password=BigDataAIC123;Min Pool Size=0;";
-
+        //private static string connectionString = "Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=NGDB021-vip.auto.contiwan.com)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=REPORTING.auto.contiwan.com)));User ID=ANALYSIS_IC;;Password=BigDataAIC123;Min Pool Size=0;";
+        private static string connectionString = "Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=NGDB021-vip.auto.contiwan.com)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=REPORTING.auto.contiwan.com)));User ID=mesread;;Password=Continental2018!!;Min Pool Size=0;";
         private OracleDbContext()
         {
             oracleConnection = new OracleConnection(connectionString);
