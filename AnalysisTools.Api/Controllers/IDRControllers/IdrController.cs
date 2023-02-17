@@ -100,8 +100,8 @@ namespace analysistools.api.Controllers.IDRControllers
             if (!(diffDays > 0 && diffDays <= 7)) return BadRequest("Solo se permite maximo 7 dias");
 
             FamilyIDR family = await _context.FamiliesIDR.FindAsync(FamilyId);
-            if (family == null) return NotFound("La familia no existe.");
-            List<LineIDR> lines = _context.LinesIDR.Where(l => l.FamilyId == family.Id).ToList();
+                if (family == null) return NotFound("La familia no existe.");
+                List<LineIDR> lines = _context.LinesIDR.Where(l => l.FamilyId == family.Id).ToList();
 
             List<StationIDR> stations = new List<StationIDR>();
             foreach (LineIDR line in lines)

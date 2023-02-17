@@ -28,6 +28,10 @@ namespace analysistools.api.Data
         public DbSet<ProducedUnits> ProducedUnits { get; set; }
         public DbSet<RAW_DATA> RAW_DATAs { get; set; }
         public DbSet<RAW_FAIL> RAW_FAILs { get; set; }
+        public DbSet<FamilyFPY> FamiliesFPY { get; set; }
+        public DbSet<LineFPY> LinesFPY { get; set; }
+        public DbSet<ProcessFPY> ProcessesFPY { get; set; }
+        public DbSet<StationFPY> StationsFPY { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -130,7 +134,36 @@ namespace analysistools.api.Data
                 entity.HasKey(e => e.ID);
             });
 
+            modelBuilder.Entity<FamilyFPY>().ToTable("FPYFamilies");
+            modelBuilder.Entity<FamilyFPY>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+            });
+
+            modelBuilder.Entity<LineFPY>().ToTable("FPYProductionLines");
+            modelBuilder.Entity<LineFPY>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasOne(e => e.FamilyFPY).WithMany(f => f.LinesFPY).HasForeignKey(l => l.FamilyId);
+                //entity.HasMany(e => e.Stations).WithOne(s => s.Line).HasPrincipalKey(l => l.Id);
+            });
+
+            modelBuilder.Entity<ProcessFPY>().ToTable("FPYProcess");
+            modelBuilder.Entity<ProcessFPY>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasOne(e => e.LineFPY).WithMany(l => l.ProcessesFPY).HasForeignKey(s => s.LineID);
+            });
+
+            modelBuilder.Entity<StationFPY>().ToTable("FPYStations");
+            modelBuilder.Entity<StationFPY>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasOne(e => e.ProcessFPY).WithMany(l => l.StationsFPY).HasForeignKey(s => s.ProcessID);
+            });
+
             base.OnModelCreating(modelBuilder);
         }
+
     }
 }
