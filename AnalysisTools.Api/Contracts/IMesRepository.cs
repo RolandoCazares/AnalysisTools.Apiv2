@@ -20,5 +20,6 @@ namespace analysistools.api.Contracts
         List<ProducedUnitsDTO> GetAllProducedIDR(string FamilyICTs, int FamilyID, DateTime FromDate, DateTime ToDate);
         List<RAW_DATA> GetRAW_DATAs(string Producto, DateTime FromDate, DateTime ToDate);
         List<RAW_FAIL> GetRAW_Fails(string Producto, DateTime FromDate, DateTime ToDate);
+        List<PiecesAnalyzed> GetPiecesAnalyzed(DateTime FromDate, DateTime ToDate);
     }
 }

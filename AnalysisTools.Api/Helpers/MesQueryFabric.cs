@@ -159,5 +159,17 @@ namespace analysistools.api.Helpers
 
         }
 
+        public static string QueryForPTWA(DateTime FromDate, DateTime ToDate) //Pieces that were analyzed
+        {
+            double diffDays = (ToDate - FromDate).TotalDays;
+            if (!(diffDays > 0 && diffDays <= 3)) throw new ArgumentException("Solo se permite maximo 3 dias");
+
+            string fromDate = FromDate.ToString("dd-MMM-yyyy HH:mm:ss");
+            string toDate = ToDate.ToString("dd-MMM-yyyy HH:mm:ss");
+
+            return $"SELECT EVAREAD.PD_LFD_RUN.Runid, EVAREAD.PD_LFD_RUN.Run_Date, ETL_EVA_STG.PD_LFD_MXT2.Mrk_Num, ETL_EVA_STG.PD_LFD_MXT2.Mrk_Txt, EVAPROD.RUN_TED.Txt_Info, SAPMES.T_CAR_SUBUNIT.Car_Id, MESREAD.T_WIP_SUBSET.Equipment FROM EVAREAD.PD_LFD_RUN, ETL_EVA_STG.PD_LFD_MXT2, SAPMES.T_CAR_SUBUNIT, MESREAD.T_WIP_SUBSET, MESREAD.PD_LFD_BMN, EVAPROD.RUN_TED, EVAPROD.PD_LFD_MED2 WHERE EVAREAD.PD_LFD_RUN.Run_Date BETWEEN to_date('{fromDate}', 'dd-mon-yyyy hh24:mi:ss') AND to_date('{toDate}', 'dd-mon-yyyy hh24:mi:ss') AND EVAREAD.PD_LFD_RUN.Run_State='F'AND (MESREAD.PD_LFD_BMN.Bmt_Name LIKE '%ANA%' OR MESREAD.PD_LFD_BMN.Bmt_Name LIKE 'REP%') AND EVAPROD.PD_LFD_MED2.Mrk_Ein_Gut='F' AND SAPMES.T_CAR_SUBUNIT.Subunit_Id=MESREAD.T_WIP_SUBSET.Unit_Id_In AND MESREAD.PD_LFD_BMN.Bmt_Dat_Id=EVAREAD.PD_LFD_RUN.Bmt_Dat_Id AND EVAPROD.RUN_TED.Runid_Type=EVAREAD.PD_LFD_RUN.Runid_Type AND EVAPROD.RUN_TED.Runid=EVAREAD.PD_LFD_RUN.Runid AND EVAPROD.RUN_TED.Run_Date=EVAREAD.PD_LFD_RUN.Run_Date AND EVAPROD.RUN_TED.Run_State=EVAREAD.PD_LFD_RUN.Run_State AND EVAPROD.RUN_TED.Prd_Pag_Sid=EVAREAD.PD_LFD_RUN.Prd_Pag_Sid AND EVAPROD.RUN_TED.Prp_Date_Id=EVAREAD.PD_LFD_RUN.Prp_Date_Id AND EVAPROD.RUN_TED.Bmt_Dat_Id=EVAREAD.PD_LFD_RUN.Bmt_Dat_Id AND EVAPROD.RUN_TED.Bmt_Dat_Id=MESREAD.PD_LFD_BMN.Bmt_Dat_Id AND EVAPROD.RUN_TED.Prd_Spc_Sid=EVAREAD.PD_LFD_RUN.Prd_Spc_Sid AND EVAPROD.RUN_TED.Prd_Mat_Sid=EVAREAD.PD_LFD_RUN.Prd_Mat_Sid AND EVAPROD.RUN_TED.Sft_Date=EVAREAD.PD_LFD_RUN.Sft_Date AND SAPMES.T_CAR_SUBUNIT.Subunit_Id=EVAPROD.RUN_TED.Runid AND EVAPROD.PD_LFD_MED2.Run_Key_Prt=EVAREAD.PD_LFD_RUN.Run_Key_Prt AND EVAPROD.PD_LFD_MED2.Run_Key_Prt=ETL_EVA_STG.PD_LFD_MXT2.Run_Key_Prt AND EVAPROD.PD_LFD_MED2.Run_Seq_Key=EVAREAD.PD_LFD_RUN.Run_Seq_Key AND EVAPROD.PD_LFD_MED2.Run_Seq_Key=ETL_EVA_STG.PD_LFD_MXT2.Run_Seq_Key AND EVAPROD.PD_LFD_MED2.Mrk_Num=ETL_EVA_STG.PD_LFD_MXT2.Mrk_Num AND (MESREAD.T_WIP_SUBSET.Equipment LIKE 'PACK%' OR MESREAD.T_WIP_SUBSET.Equipment LIKE 'REL%') ORDER by EVAREAD.PD_LFD_RUN.Run_Date ASC ";
+
+        }
+
     }
 }

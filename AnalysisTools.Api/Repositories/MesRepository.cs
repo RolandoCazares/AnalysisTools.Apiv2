@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using analysistools.api.Models.IDR.DTO;
 using analysistools.api.Models.IDR;
 using analysistools.api.Models.FPY;
+using analysistools.api.Models.Continental;
 
 namespace analysistools.api.Repositories
 {
@@ -297,6 +298,23 @@ namespace analysistools.api.Repositories
             catch (Exception) { }
             Resultado = Resultado.GroupBy(f => f.SerialNumber).Select(f => f.First()).ToList();
             return Resultado;
+        }
+
+        public List<PiecesAnalyzed> GetPiecesAnalyzed(DateTime FromDate, DateTime ToDate)
+        {
+            List<PiecesAnalyzed> ann = new List<PiecesAnalyzed>();
+            try
+            {
+                string PiecesAnalyzedQuery = MesQueryFabric.QueryForPTWA(FromDate, ToDate);
+                DataTable queryResult = dbContext.RunQuery(PiecesAnalyzedQuery);
+               ann = DataTableHelper.DataTableToPiecesAnalyzed(queryResult);
+            }
+            catch (Exception)
+            {
+
+                return ann;
+            }
+            return ann;
         }
     }
 }

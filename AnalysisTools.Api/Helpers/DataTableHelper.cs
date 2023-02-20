@@ -459,7 +459,35 @@ namespace analysistools.api.Helpers
 
         }
 
+        public static List<PiecesAnalyzed> DataTableToPiecesAnalyzed(DataTable data)
+        {
+            List<PiecesAnalyzed> result = new List<PiecesAnalyzed>();
+            foreach (DataRow row in data.Rows)
+            {
+                try
+                {
+                    string dateAsString = row["Run_Date"].ToString();
+                    PiecesAnalyzed ana = new PiecesAnalyzed
+                    {
+                        SerialNumber = row["Runid"].ToString(),
+                        Date = DateTime.Parse(dateAsString),
+                        Component = row["Mrk_Num"].ToString(),
+                        ComponentPartNumber = row["Mrk_Txt"].ToString(),
+                        AnalisisComment = row["Txt_Info"].ToString(),
+                        Carrier = row["Car_Id"].ToString(),
+                        Equipment = row["Equipment"].ToString(),
+                    };
 
-        
+                    result.Add(ana);
+                }
+                catch (Exception)
+                {
+                }
+            }
+            return result;
+        }
+
+
+
     }
 }

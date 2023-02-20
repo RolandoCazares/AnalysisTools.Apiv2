@@ -57,30 +57,48 @@ namespace analysistools.api.Controllers.FPYControllers.PRODUCTOS.LDM2
 
             UnitsFails = UnitsFails.OrderBy(f => f.DATE).ToList();
             int totalFailures = UnitsFails
-                .Where(u => !string.IsNullOrEmpty(u.FAILURE) && u.PROCESS != "SCRAP" && u.PROCESS != "ANALYSE_ICT" && u.PROCESS != "REPAIR"
-            && u.PROCESS != "ANALYSE_EOL" && u.PROCESS != "ANALYSE_RTV").Count();
+                .Where(u => !string.IsNullOrEmpty(u.FAILURE) 
+                && u.PROCESS != "SCRAP" 
+                && u.PROCESS != "ANALYSE_ICT" 
+                && u.PROCESS != "ANALYSE_FLASH" 
+                && u.PROCESS != "ANALYSE_PCBA" 
+                && u.PROCESS != "ANALYSE_RTV" 
+                && u.PROCESS != "ANALYSE_DNG" 
+                && u.PROCESS != "ANALYSE_PVA" 
+                && u.PROCESS != "ANALYSE_SCREW" 
+                && u.PROCESS != "ANALYSE_HOUSING" 
+                && u.PROCESS != "ANALYSE_PRES" 
+                && u.PROCESS != "ANALYSE_PINC" 
+                && u.PROCESS != "ANALYSE_LABEL" 
+                && u.PROCESS != "ANALYSE_EOL" 
+                && u.PROCESS != "ANALYSE" 
+                && u.PROCESS != "ANALYSE_SCREW"
+                && u.PROCESS != "INTERCON-3"
+                && u.PROCESS != "LDM_EVAP_2"
+                && u.PROCESS != "REPAIR"
+                ).Count();
             //CONTEO POR PROCESO
-            int TotalFailuresUMG = UnitsFails.Where(s => s.PROCESS == "UMG_PIN").Count();
-            int TotalFailuresICT = UnitsFails.Where(s => s.PROCESS == "ICT" || s.PROCESS == "ICT_LDM3-4").Count();
-            int TotalFailuresFLASH = UnitsFails.Where(s => s.PROCESS == "FLASH").Count();
-            int TotalFailuresHSTAKE = UnitsFails.Where(s => s.PROCESS == "HSTAKE").Count();
-            int TotalFailuresLDM3_RTV = UnitsFails.Where(s => s.PROCESS == "LDM3_RTV").Count();
-            int TotalFailuresLDM3_GFILL = UnitsFails.Where(s => s.PROCESS == "LDM3_GFILL").Count();
-            int TotalFailuresLDM2_CRI = UnitsFails.Where(s => s.PROCESS == "LDM2_CRIMPING_ST1_1" || s.PROCESS == "LDM2_CRIMPING_ST3" || s.PROCESS == "LDM2_CRIMPING_ST1_2" || s.PROCESS == "LDM2_CRIMPING_ST2").Count();
-            int TotalFailuresSCREW = UnitsFails.Where(s => s.PROCESS == "SCREW").Count();
-            int TotalFailuresLDM2_FIN = UnitsFails.Where(s => s.PROCESS == "LDM2_FIN").Count();
+            int T_UMG = UnitsFails.Where(s => s.PROCESS == "UMG_PIN").Count();
+            int T_ICT = UnitsFails.Where(s => s.PROCESS == "ICT" || s.PROCESS == "ICT_LDM3-4").Count();
+            int T_FLASH = UnitsFails.Where(s => s.PROCESS == "FLASH").Count();
+            int T_HSTAKE = UnitsFails.Where(s => s.PROCESS == "HSTAKE").Count();
+            int T_LDM3_RTV = UnitsFails.Where(s => s.PROCESS == "LDM3_RTV").Count();
+            int T_LDM3_GFILL = UnitsFails.Where(s => s.PROCESS == "LDM3_GFILL").Count();
+            int T_LDM2_CRI = UnitsFails.Where(s => s.PROCESS == "LDM2_CRIMPING_ST1_1" || s.PROCESS == "LDM2_CRIMPING_ST3" || s.PROCESS == "LDM2_CRIMPING_ST1_2" || s.PROCESS == "LDM2_CRIMPING_ST2").Count();
+            int T_SCREW = UnitsFails.Where(s => s.PROCESS == "SCREW").Count();
+            int T_LDM2_FIN = UnitsFails.Where(s => s.PROCESS == "LDM2_FIN").Count();
             //Objeto guarda Conteo por proceso
             var TotalsByProcess = new
             {
-                UMG = TotalFailuresUMG,
-                ICT = TotalFailuresICT,
-                FLASH = TotalFailuresFLASH,
-                HSTAKE = TotalFailuresHSTAKE,
-                LDM3_RTV = TotalFailuresLDM3_RTV,
-                LDM3_GFILL = TotalFailuresLDM3_GFILL,
-                LDM2_CRI = TotalFailuresLDM2_CRI,
-                SCREW = TotalFailuresSCREW,
-                LDM2_FIN = TotalFailuresLDM2_FIN,
+                UMG = T_UMG,
+                ICT = T_ICT,
+                FLASH = T_FLASH,
+                HSTAKE = T_HSTAKE,
+                LDM3_RTV = T_LDM3_RTV,
+                LDM3_GFILL = T_LDM3_GFILL,
+                LDM2_CRI = T_LDM2_CRI,
+                SCREW = T_SCREW,
+                LDM2_FIN = T_LDM2_FIN,
             };
             //FILTRADO POR PROCESO
             var FailsByUMG = UnitsFails.Where(s => s.PROCESS == "UMG_PIN").ToList();
@@ -109,7 +127,7 @@ namespace analysistools.api.Controllers.FPYControllers.PRODUCTOS.LDM2
             var response = new
             {
                 TotalFailures = totalFailures,
-                TotalsByProcess = TotalsByProcess,
+                TotalsByProcess,
                 FailsByProcess = FailsByProcess,
                 ListUnitsFails = UnitsFails
             };
@@ -288,27 +306,26 @@ namespace analysistools.api.Controllers.FPYControllers.PRODUCTOS.LDM2
             //Objeto guarda FILTRADO por proceso
             var FailsByProcess = new
             {
-                FailsByUMG = FailsByUMG,
-                FailsByICT = FailsByICT,
-                FailsByFLASH = FailsByFLASH,
-                FailsByHSTAKE = FailsByHSTAKE,
-                FailsByLDM3_RTV = FailsByLDM3_RTV,
-                FailsByLDM3_GFILL = FailsByLDM3_GFILL,
-                FailsByLDM2_CRI = FailsByLDM2_CRI,
-                FailsBySCREW = FailsBySCREW,
-                FailsByLDM2_FIN = FailsByLDM2_FIN,
+                UMG = FailsByUMG,
+                ICT = FailsByICT,
+                FLASH = FailsByFLASH,
+                HSTAKE = FailsByHSTAKE,
+                LDM3_RTV = FailsByLDM3_RTV,
+                LDM3_GFILL = FailsByLDM3_GFILL,
+                LDM2_CRI = FailsByLDM2_CRI,
+                SCREW = FailsBySCREW,
+                LDM2_FIN = FailsByLDM2_FIN,
             };
 
             var response = new
             {
                 Process = Process.Name,
-                ProcessID = Process.Id,
+                ProcesID = Process.Id,
                 TotalFailures = totalFailures,
                 TotalsByProcess = TotalsByProcess,
                 FailsByProcess = FailsByProcess
             };
 
-            
             return Ok(response);
         }
 
