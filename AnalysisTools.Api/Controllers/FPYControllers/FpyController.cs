@@ -123,7 +123,71 @@ namespace analysistools.api.Controllers.FPYControllers
             return Ok(result);
         }
 
-       
+        [HttpGet("FailsByFamilyID/{FamilyId}/{fromDate}/{toDate}")]
+        public async Task<ActionResult> GetFailsFromLocalDB(int FamilyId, string fromDate, string toDate)
+        {
+            DateTime FromDate = DateTime.ParseExact(fromDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
+            DateTime ToDate = DateTime.ParseExact(toDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
+
+            List<RAW_FAIL> result = new List<RAW_FAIL>();
+
+            double diffDays = (ToDate - FromDate).TotalDays;
+            if (!(diffDays > 0 && diffDays <= 7)) return BadRequest("Solo se permite maximo 7 dias");
+
+            FamilyFPY family = await _context.FamiliesFPY.FindAsync(FamilyId);
+            if (family == null) return NotFound("The family doesn`t exist.");
+            List<LineFPY> lines = _context.LinesFPY.Where(l => l.FamilyId == family.Id).ToList();
+
+            List<ProcessFPY> processes = new List<ProcessFPY>();
+            foreach (LineFPY line in lines)
+            {
+                processes.AddRange(_context.ProcessesFPY.Where(w => w.LineID == line.Id).ToList());
+            }
+
+            List<StationFPY> stations = new List<StationFPY>();
+            foreach (ProcessFPY process in processes)
+            {
+                stations.AddRange(_context.StationsFPY.Where(s => s.ProcessID == process.Id).ToList());
+            }
+
+            List<RAW_FAIL> FailsFilteredByStation = new List<RAW_FAIL>();
+            foreach (StationFPY station in stations)
+            {
+                FailsFilteredByStation.AddRange(_context.RAW_FAILs.Where(f => f.NAME == station.Name && f.DATE >= FromDate && f.DATE <= ToDate).ToList());
+            }
+            result.AddRange(FailsFilteredByStation);
+
+            result = result.OrderBy(f => f.DATE).ToList();
+            return Ok(result);
+        }
+
+
+        [HttpGet("FailsByProcess/{ProcessID}/{fromDate}/{toDate}")]
+        public async Task<ActionResult> GetFailsFromLocalDBbyProcess(int ProcessID, string fromDate, string toDate)
+        {
+            DateTime FromDate = DateTime.ParseExact(fromDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
+            DateTime ToDate = DateTime.ParseExact(toDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
+
+            List<RAW_FAIL> result = new List<RAW_FAIL>();
+
+            ProcessFPY Process = await _context.ProcessesFPY.FindAsync(ProcessID);
+            if (Process == null) return NotFound("The Process doesn`t exist.");
+            List<StationFPY> stations = _context.StationsFPY.Where(l => l.ProcessID == Process.Id).ToList();
+
+            List<RAW_FAIL> FailsFilteredByStation = new List<RAW_FAIL>();
+            foreach (StationFPY station in stations)
+            {
+                FailsFilteredByStation.AddRange(_context.RAW_FAILs.Where(f => f.NAME == station.Name && f.DATE >= FromDate && f.DATE <= ToDate).ToList());
+            }
+            result.AddRange(FailsFilteredByStation);
+
+            result = result.OrderBy(f => f.DATE).ToList();
+            return Ok(result);
+        }
+
+
     }
+
+
 }
 

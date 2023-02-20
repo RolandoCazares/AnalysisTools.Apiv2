@@ -12,5 +12,7 @@ namespace analysistools.api.Models.FPY
         public int ProcessID { get; set; }
         [JsonIgnore]
         public ProcessFPY ProcessFPY { get; set; }
+        [JsonIgnore]
+        public List<ModelFPY> ModelsFPY { get; set; }
     }
 }

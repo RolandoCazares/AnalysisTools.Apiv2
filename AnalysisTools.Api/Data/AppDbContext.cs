@@ -1,6 +1,7 @@
 ﻿using analysistools.api.Models.Authentication;
 using analysistools.api.Models.Continental;
 using analysistools.api.Models.FPY;
+using analysistools.api.Models.FPY.PRODUCTS;
 using analysistools.api.Models.IDR;
 using analysistools.api.Models.Optical;
 using analysistools.api.Models.Tickets;
@@ -32,6 +33,10 @@ namespace analysistools.api.Data
         public DbSet<LineFPY> LinesFPY { get; set; }
         public DbSet<ProcessFPY> ProcessesFPY { get; set; }
         public DbSet<StationFPY> StationsFPY { get; set; }
+        public DbSet<ModelFPY> ModelsFPY { get; set; }
+        public DbSet<ProducedUnitFPY> ProducedUnitsFPY { get; set; }
+        public DbSet<FPYLDM2PRO> ProducedUnitsLDM2FPY { get; set; }
+        public DbSet<FPYLDM2FAIL> FailsUnitsLDM2FPY { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -162,8 +167,28 @@ namespace analysistools.api.Data
                 entity.HasOne(e => e.ProcessFPY).WithMany(l => l.StationsFPY).HasForeignKey(s => s.ProcessID);
             });
 
+            modelBuilder.Entity<ModelFPY>().ToTable("FPYModels");
+            modelBuilder.Entity<ModelFPY>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasOne(e => e.StationFPY).WithMany(l => l.ModelsFPY).HasForeignKey(s => s.StationID);
+            });
+
+            modelBuilder.Entity<FPYLDM2PRO>().ToTable("FPYLDM2Produced");
+            modelBuilder.Entity<FPYLDM2PRO>(entity =>
+            {
+                entity.HasKey(e => e.ID);
+            });
+
+            modelBuilder.Entity<FPYLDM2FAIL>().ToTable("FPYLDM2Failure");
+            modelBuilder.Entity<FPYLDM2FAIL>(entity =>
+            {
+                entity.HasKey(e => e.ID);
+            });
+
             base.OnModelCreating(modelBuilder);
         }
 
+        
     }
 }

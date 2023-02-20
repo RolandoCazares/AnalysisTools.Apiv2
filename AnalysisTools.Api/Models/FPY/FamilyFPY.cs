@@ -13,6 +13,9 @@ namespace analysistools.api.Models.FPY
         public string IdType { get; set; }
         [JsonIgnore]
         public List<LineFPY> LinesFPY { get; set; }
+        [JsonIgnore]
+        public List<ProducedUnitFPY> ProducedUnitsIDR { get; set; }
+
 
     }
 }
