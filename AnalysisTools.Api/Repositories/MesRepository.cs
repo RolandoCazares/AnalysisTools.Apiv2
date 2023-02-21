@@ -268,19 +268,28 @@ namespace analysistools.api.Repositories
             return Resultado;
         }
 
-        public List<RAW_DATA> GetRAW_DATAs (string Producto, DateTime FromDate, DateTime ToDate)
+        public List<RAW_DATA> GetRAW_DATAs (DateTime FromDate, DateTime ToDate)
         {
 
             List<RAW_DATA> Resultado = new List<RAW_DATA>();
             try
             {
-                string DataQueryFPYDATAs = MesQueryFabric.QueryForDataFPY(Producto, FromDate, ToDate);
-                DataTable queryResult = dbContext.RunQuery(DataQueryFPYDATAs);
-                Resultado = DataTableHelper.DataTableToDATA(queryResult);
+                List<FamilyFPY> families = _context.FamiliesFPY.ToList();
+                foreach (FamilyFPY family in families)
+                {
+                    string Producto = family.Name;
+                    string DataQueryFPYDATAs = MesQueryFabric.QueryForDataFPY(Producto, FromDate, ToDate);
+                    DataTable queryResult = dbContext.RunQuery(DataQueryFPYDATAs);
+                    List<RAW_DATA> filteredData = DataTableHelper.DataTableToDATA(queryResult)
+                        .GroupBy(d => d.SerialNumber)
+                        .Select(g => g.OrderBy(d => d.DATE).First())
+                        .ToList();
+                    Resultado.AddRange(filteredData);
+                }
+
 
             }
             catch (Exception) { }
-            Resultado = Resultado.GroupBy(f => f.SerialNumber).Select(f => f.First()).ToList();
             return Resultado;
         }
 

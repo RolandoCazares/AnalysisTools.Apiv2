@@ -14,19 +14,19 @@ using (var db = new AppDbContext())
     //Create Database if not exists
     db.Database.EnsureCreated();
    // Login to all server when the app starts
-    NetworkCredential networkCredential = NetworkCredential.Instance;
-    var opticalServers = db.OpticalStations.ToList();
-    foreach (var opticalServer in opticalServers)
-    {
-        var credential = db.WindowsCredentials.FirstOrDefault(c => c.Id == opticalServer.CredentialId);
-        networkCredential.LogIn(opticalServer.IpAddress, credential.Username, credential.Password);
-    }
-    var ticketServers = db.TicketServers.ToList();
-    foreach (var ticketServer in ticketServers)
-    {
-        var credential = db.WindowsCredentials.FirstOrDefault(c => c.Id == ticketServer.CredentialId);
-        networkCredential.LogIn(ticketServer.IpAddress, credential.Username, credential.Password);
-    }
+    //NetworkCredential networkCredential = NetworkCredential.Instance;
+    //var opticalServers = db.OpticalStations.ToList();
+    //foreach (var opticalServer in opticalServers)
+    //{
+    //    var credential = db.WindowsCredentials.FirstOrDefault(c => c.Id == opticalServer.CredentialId);
+    //    networkCredential.LogIn(opticalServer.IpAddress, credential.Username, credential.Password);
+    //}
+    //var ticketServers = db.TicketServers.ToList();
+    //foreach (var ticketServer in ticketServers)
+    //{
+    //    var credential = db.WindowsCredentials.FirstOrDefault(c => c.Id == ticketServer.CredentialId);
+    //    networkCredential.LogIn(ticketServer.IpAddress, credential.Username, credential.Password);
+    //}
     db.SaveChanges();
 }
 

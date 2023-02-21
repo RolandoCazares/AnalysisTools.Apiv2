@@ -28,6 +28,7 @@ namespace analysistools.api.Data
         public DbSet<Failure> Failures { get; set; }
         public DbSet<ProducedUnits> ProducedUnits { get; set; }
         public DbSet<RAW_DATA> RAW_DATAs { get; set; }
+        public DbSet<RAW_DATAFILTER> RAW_DATAsFilter { get; set; }
         public DbSet<RAW_FAIL> RAW_FAILs { get; set; }
         public DbSet<FamilyFPY> FamiliesFPY { get; set; }
         public DbSet<LineFPY> LinesFPY { get; set; }
@@ -129,6 +130,11 @@ namespace analysistools.api.Data
 
             modelBuilder.Entity<RAW_DATA>().ToTable("FPYDATA");
             modelBuilder.Entity<RAW_DATA>(entity =>
+            {
+                entity.HasKey(e => e.ID);
+            });
+            modelBuilder.Entity<RAW_DATAFILTER>().ToTable("FPYDATAFILTER");
+            modelBuilder.Entity<RAW_DATAFILTER>(entity =>
             {
                 entity.HasKey(e => e.ID);
             });

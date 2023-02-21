@@ -24,9 +24,54 @@ namespace analysistools.api.Controllers.FPYControllers
             _context = context;
         }
 
-        [HttpGet("MES/Data/{Producto}/{fromDate}/{toDate}")]
+        [HttpGet("MES/DataByDay")]
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
-        public async Task<ActionResult<List<RAW_DATA>>> GetDATAFromMES(string Producto,string fromDate, string toDate)
+        public async Task<ActionResult<List<RAW_DATA>>> GetDATAFromMESByDay()
+        {
+
+            DateTime currentDate = DateTime.Now.Date;
+            DateTime fromDate = currentDate.AddDays(-1);
+            List<RAW_DATA> FPYData = _mesRepository.GetRAW_DATAs(fromDate, currentDate);
+
+            // Agregar los datos a la tabla RAW_DATAs
+            await _context.RAW_DATAs.AddRangeAsync(FPYData);
+            await _context.SaveChangesAsync();
+
+            // Agrupar los datos por día, material, var e idtype, y obtener la cantidad de elementos en cada grupo
+            var groupedData = FPYData
+                .GroupBy(data => new { data.DATE, data.MATERIAL, data.VAR, data.IDTYPE })
+                .Select(group => new
+                {
+                    CantidadAgrupados = group.Count(),
+                    Dia = group.Key.DATE,
+                    Material = group.Key.MATERIAL,
+                    Var = group.Key.VAR,
+                    IDType = group.Key.IDTYPE
+                })
+                .ToList();
+
+            List<RAW_DATAFILTER> FPYDataFiler = groupedData
+            .Select(data => new RAW_DATAFILTER
+            {
+                CANTIDAD = data.CantidadAgrupados,
+                DATE = data.Dia,
+                MATERIAL = data.Material,
+                VAR = data.Var,
+                IDTYPE = data.IDType
+            })
+            .ToList();
+
+            await _context.RAW_DATAsFilter.AddRangeAsync(FPYDataFiler);
+
+            // Guardar los cambios en la base de datos
+            await _context.SaveChangesAsync();
+
+            return Ok(FPYData);
+        }
+
+        [HttpGet("MES/Data/{fromDate}/{toDate}")]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
+        public async Task<ActionResult<List<RAW_DATA>>> GetDATAFromMES(string fromDate, string toDate)
         {
             DateTime FromDate = DateTime.ParseExact(fromDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
             DateTime ToDate = DateTime.ParseExact(toDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
@@ -34,8 +79,7 @@ namespace analysistools.api.Controllers.FPYControllers
             if (!(diffDays > 0 && diffDays <= 30)) return BadRequest("Solo se permite maximo 7 dias");
             List<RAW_DATA> FPYData = new List<RAW_DATA>();
 
-            FPYData = _mesRepository.GetRAW_DATAs(Producto, FromDate, ToDate);
-
+            FPYData = _mesRepository.GetRAW_DATAs(FromDate, ToDate);
             await _context.RAW_DATAs.AddRangeAsync(FPYData);
             await _context.SaveChangesAsync();
 
