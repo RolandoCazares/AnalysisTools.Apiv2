@@ -280,10 +280,10 @@ namespace analysistools.api.Repositories
                     string Producto = family.Name;
                     string DataQueryFPYDATAs = MesQueryFabric.QueryForDataFPY(Producto, FromDate, ToDate);
                     DataTable queryResult = dbContext.RunQuery(DataQueryFPYDATAs);
-                    List<RAW_DATA> filteredData = DataTableHelper.DataTableToDATA(queryResult)
-                        .GroupBy(d => d.SerialNumber)
-                        .Select(g => g.OrderBy(d => d.DATE).First())
-                        .ToList();
+                    List<RAW_DATA> filteredData = DataTableHelper.DataTableToDATA(queryResult);
+                        //.GroupBy(d => d.SerialNumber)
+                        //.Select(g => g.OrderBy(d => d.DATE).First())
+                        //.ToList();
                     Resultado.AddRange(filteredData);
                 }
 

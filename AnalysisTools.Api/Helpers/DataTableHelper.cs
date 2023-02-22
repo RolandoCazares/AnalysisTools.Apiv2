@@ -398,20 +398,17 @@ namespace analysistools.api.Helpers
             {
                 try
                 {
-                    string dateTimeAsString = row["RUN_DATE"].ToString();
-                    RAW_DATA failure = new RAW_DATA
+                    string dateTimeAsString = row["fecha"].ToString();
+                    RAW_DATA rawData = new RAW_DATA
                     {
-                        SerialNumber = row["RUNID"].ToString(),
-                        AUFTR = row["PDK_AUFTR"].ToString(),
-                        STATE = row["RUN_STATE"].ToString(),
-                        DATE = DateTime.Parse(dateTimeAsString),
-                        MATERIAL = row["PDK_MATERIAL"].ToString(),
-                        NAME = row["BMT_NAME"].ToString(),
-                        VAR = row["PRP_VAR"].ToString(),
-                        IDTYPE = row["RUNID_TYPE"].ToString(),
-
+                        Material = row["PDK_MATERIAL"].ToString(),
+                        Name = row["BMT_NAME"].ToString(),
+                        Var = row["PRP_VAR"].ToString(),
+                        IdType = row["RUNID_TYPE"].ToString(),
+                        Fecha = DateTime.Parse(dateTimeAsString),
+                        Contador = int.Parse(row["CONTADOR"].ToString())
                     };
-                    result.Add(failure);
+                    result.Add(rawData);
                 }
 
                 catch (Exception) { }
