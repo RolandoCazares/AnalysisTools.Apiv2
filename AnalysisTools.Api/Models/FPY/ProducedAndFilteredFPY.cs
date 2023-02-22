@@ -1,6 +1,6 @@
 ﻿namespace analysistools.api.Models.FPY
 {
-    public class RAW_DATA
+    public class ProducedAndFilteredFPY
     {
         public int ID { get; set; }
 
@@ -12,8 +12,8 @@
 
         public string IdType { get; set; }
 
-        public DateTime Fecha { get; set; }
+        public DateTime Date { get; set; }
 
-        public int Contador { get; set; }
+        public int Amount { get; set; }
     }
 }

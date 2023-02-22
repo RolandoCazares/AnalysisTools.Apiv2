@@ -10,18 +10,63 @@ using analysistools.api.Models.FPY;
 using analysistools.api.Models.FPY.PRODUCTS;
 using System.Globalization;
 
-namespace analysistools.api.Controllers.FPYControllers.PRODUCTOS.LDM2
+namespace analysistools.api.Controllers.FPYControllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FPYLDM2PROController : ControllerBase
+    public class Z_Controller : ControllerBase
     {
         private readonly AppDbContext _context;
 
-        public FPYLDM2PROController(AppDbContext context)
+        public Z_Controller(AppDbContext context)
         {
             _context = context;
         }
+
+        //[HttpGet("MES/DataByDay")]
+        ////[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
+        //public async Task<ActionResult<List<RAW_DATA>>> GetDATAFromMESByDay()
+        //{
+
+        //    DateTime currentDate = DateTime.Now.Date;
+        //    DateTime fromDate = currentDate.AddDays(-1);
+        //    List<RAW_DATA> FPYData = _mesRepository.GetRAW_DATAs(fromDate, currentDate);
+
+        //    // Agregar los datos a la tabla RAW_DATAs
+        //    await _context.RAW_DATAs.AddRangeAsync(FPYData);
+        //    await _context.SaveChangesAsync();
+
+            //// Agrupar los datos por día, material, var e idtype, y obtener la cantidad de elementos en cada grupo
+            //var groupedData = FPYData
+            //    .GroupBy(data => new { data.DATE, data.MATERIAL, data.VAR, data.IDTYPE })
+            //    .Select(group => new
+            //    {
+            //        CantidadAgrupados = group.Count(),
+            //        Dia = group.Key.DATE,
+            //        Material = group.Key.MATERIAL,
+            //        Var = group.Key.VAR,
+            //        IDType = group.Key.IDTYPE
+            //    })
+            //    .ToList();
+
+            //List<RAW_DATAFILTER> FPYDataFiler = groupedData
+            //.Select(data => new RAW_DATAFILTER
+            //{
+            //    CANTIDAD = data.CantidadAgrupados,
+            //    DATE = data.Dia,
+            //    MATERIAL = data.Material,
+            //    VAR = data.Var,
+            //    IDTYPE = data.IDType
+            //})
+            //.ToList();
+
+            //await _context.RAW_DATAsFilter.AddRangeAsync(FPYDataFiler);
+
+            // Guardar los cambios en la base de datos
+            //await _context.SaveChangesAsync();
+
+        //    return Ok(FPYData);
+        //}
 
         // GET: api/FPYLDM2FAIL/All/dd-MM-yyyy/dd-MM-yyyy
         [HttpGet("All/{fromDate}/{toDate}")]
@@ -58,7 +103,7 @@ namespace analysistools.api.Controllers.FPYControllers.PRODUCTOS.LDM2
             int CANTIDADTOTAL = UnitsPass.Sum(x => x.CANTIDAD);
             var DespreciarAnalisis = UnitsPass.Where(u => !string.IsNullOrEmpty(u.PROCESO) && u.PROCESO != "A&R_ANA_BSA02" && u.PROCESO != "A&R_ANA_BSA04" && u.PROCESO != "A&R_ANA_BSA06"
             && u.PROCESO != "AR_ANA_BS02" && u.PROCESO != "AR_ANA_BS06" && u.PROCESO != "TEST" && u.PROCESO != "REP_EOL" && u.PROCESO != "REP_HSG" && u.PROCESO != "REP_FLSH" && u.PROCESO != "REP_CLBL").ToList();
-            
+
             //CONTEO POR PROCESO
             int TotalFailuresUMG = DespreciarAnalisis.Where(s => s.PROCESO == "UMG_PIN").Sum(x => x.CANTIDAD);
             int TotalFailuresICT = DespreciarAnalisis.Where(s => s.PROCESO == "ICT" || s.PROCESO == "ICT_LDM3-4").Sum(x => x.CANTIDAD);
@@ -108,9 +153,9 @@ namespace analysistools.api.Controllers.FPYControllers.PRODUCTOS.LDM2
 
             var response = new
             {
-                TotalPRoducidas= CANTIDADTOTAL,
-                TotalsByProcess = TotalsByProcess,
-                FailsByProcess = FailsByProcess,
+                TotalPRoducidas = CANTIDADTOTAL,
+                TotalsByProcess,
+                FailsByProcess,
             };
             return Ok(response);
         }
@@ -174,15 +219,15 @@ namespace analysistools.api.Controllers.FPYControllers.PRODUCTOS.LDM2
             //Objeto guarda Conteo por proceso
             var TotalsByProcess = new
             {
-                TotalFailuresUMG = TotalFailuresUMG,
-                TotalFailuresICT = TotalFailuresICT,
-                TotalFailuresFLASH = TotalFailuresFLASH,
-                TotalFailuresHSTAKE = TotalFailuresHSTAKE,
-                TotalFailuresLDM3_RTV = TotalFailuresLDM3_RTV,
-                TotalFailuresLDM3_GFILL = TotalFailuresLDM3_GFILL,
-                TotalFailuresLDM2_CRI = TotalFailuresLDM2_CRI,
-                TotalFailuresSCREW = TotalFailuresSCREW,
-                TotalFailuresLDM2_FIN = TotalFailuresLDM2_FIN,
+                TotalFailuresUMG,
+                TotalFailuresICT,
+                TotalFailuresFLASH,
+                TotalFailuresHSTAKE,
+                TotalFailuresLDM3_RTV,
+                TotalFailuresLDM3_GFILL,
+                TotalFailuresLDM2_CRI,
+                TotalFailuresSCREW,
+                TotalFailuresLDM2_FIN,
             };
             //FILTRADO POR PROCESO
             var FailsByUMG = FaultsFilteredByStation.Where(s => s.PROCESS == "UMG_PIN").ToList();
@@ -213,8 +258,8 @@ namespace analysistools.api.Controllers.FPYControllers.PRODUCTOS.LDM2
                 line = line.Name,
                 lineId = line.Id,
                 TotalFailures = totalFailures,
-                TotalsByProcess = TotalsByProcess,
-                FailsByProcess = FailsByProcess
+                TotalsByProcess,
+                FailsByProcess
             };
 
             return Ok(response);
@@ -264,15 +309,15 @@ namespace analysistools.api.Controllers.FPYControllers.PRODUCTOS.LDM2
             //Objeto guarda Conteo por proceso
             var TotalsByProcess = new
             {
-                TotalFailuresUMG = TotalFailuresUMG,
-                TotalFailuresICT = TotalFailuresICT,
-                TotalFailuresFLASH = TotalFailuresFLASH,
-                TotalFailuresHSTAKE = TotalFailuresHSTAKE,
-                TotalFailuresLDM3_RTV = TotalFailuresLDM3_RTV,
-                TotalFailuresLDM3_GFILL = TotalFailuresLDM3_GFILL,
-                TotalFailuresLDM2_CRI = TotalFailuresLDM2_CRI,
-                TotalFailuresSCREW = TotalFailuresSCREW,
-                TotalFailuresLDM2_FIN = TotalFailuresLDM2_FIN,
+                TotalFailuresUMG,
+                TotalFailuresICT,
+                TotalFailuresFLASH,
+                TotalFailuresHSTAKE,
+                TotalFailuresLDM3_RTV,
+                TotalFailuresLDM3_GFILL,
+                TotalFailuresLDM2_CRI,
+                TotalFailuresSCREW,
+                TotalFailuresLDM2_FIN,
             };
             //FILTRADO POR PROCESO
             var FailsByUMG = FaultsFilteredByStation.Where(s => s.PROCESS == "UMG_PIN").ToList();
@@ -287,15 +332,15 @@ namespace analysistools.api.Controllers.FPYControllers.PRODUCTOS.LDM2
             //Objeto guarda FILTRADO por proceso
             var FailsByProcess = new
             {
-                FailsByUMG = FailsByUMG,
-                FailsByICT = FailsByICT,
-                FailsByFLASH = FailsByFLASH,
-                FailsByHSTAKE = FailsByHSTAKE,
-                FailsByLDM3_RTV = FailsByLDM3_RTV,
-                FailsByLDM3_GFILL = FailsByLDM3_GFILL,
-                FailsByLDM2_CRI = FailsByLDM2_CRI,
-                FailsBySCREW = FailsBySCREW,
-                FailsByLDM2_FIN = FailsByLDM2_FIN,
+                FailsByUMG,
+                FailsByICT,
+                FailsByFLASH,
+                FailsByHSTAKE,
+                FailsByLDM3_RTV,
+                FailsByLDM3_GFILL,
+                FailsByLDM2_CRI,
+                FailsBySCREW,
+                FailsByLDM2_FIN,
             };
 
             var response = new
@@ -303,8 +348,8 @@ namespace analysistools.api.Controllers.FPYControllers.PRODUCTOS.LDM2
                 Process = Process.Name,
                 ProcessID = Process.Id,
                 TotalFailures = totalFailures,
-                TotalsByProcess = TotalsByProcess,
-                FailsByProcess = FailsByProcess
+                TotalsByProcess,
+                FailsByProcess
             };
 
 
@@ -576,7 +621,7 @@ namespace analysistools.api.Controllers.FPYControllers.PRODUCTOS.LDM2
 
         private bool FPYLDM2PROExists(string id)
         {
-            return _context.ProducedUnitsLDM2FPY.Any(e => e.ID == id);  
+            return _context.ProducedUnitsLDM2FPY.Any(e => e.ID == id);
         }
     }
 }

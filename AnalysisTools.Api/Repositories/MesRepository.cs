@@ -268,45 +268,79 @@ namespace analysistools.api.Repositories
             return Resultado;
         }
 
-        public List<RAW_DATA> GetRAW_DATAs (DateTime FromDate, DateTime ToDate)
+        public List<ProducedAndFilteredFPY> GetProducedAndFiltereds (DateTime FromDate, DateTime ToDate)
         {
 
-            List<RAW_DATA> Resultado = new List<RAW_DATA>();
+            List<ProducedAndFilteredFPY> Result = new List<ProducedAndFilteredFPY>();
             try
             {
                 List<FamilyFPY> families = _context.FamiliesFPY.ToList();
                 foreach (FamilyFPY family in families)
                 {
-                    string Producto = family.Name;
-                    string DataQueryFPYDATAs = MesQueryFabric.QueryForDataFPY(Producto, FromDate, ToDate);
-                    DataTable queryResult = dbContext.RunQuery(DataQueryFPYDATAs);
-                    List<RAW_DATA> filteredData = DataTableHelper.DataTableToDATA(queryResult);
+                    string Product = family.IdType;
+                    string DataQueryProducedFiltered = MesQueryFabric.QueryForProducedAndFilteredFPY(Product, FromDate, ToDate);
+                    DataTable queryResult = dbContext.RunQuery(DataQueryProducedFiltered);
+                    List<ProducedAndFilteredFPY> filteredData = DataTableHelper.DataTableToProducedAndFilter(queryResult);
                         //.GroupBy(d => d.SerialNumber)
                         //.Select(g => g.OrderBy(d => d.DATE).First())
                         //.ToList();
-                    Resultado.AddRange(filteredData);
+                    Result.AddRange(filteredData);
                 }
 
 
             }
             catch (Exception) { }
-            return Resultado;
+            return Result;
         }
 
-        public List<RAW_FAIL> GetRAW_Fails(string Producto, DateTime FromDate, DateTime ToDate)
+        public List<ProducedRAWFPY> GetProducedRAWFPYs(DateTime FromDate, DateTime ToDate)
         {
 
-            List<RAW_FAIL> Resultado = new List<RAW_FAIL>();
+            List<ProducedRAWFPY> Result = new List<ProducedRAWFPY>();
             try
             {
-                string DataQueryFPYFails = MesQueryFabric.QueryForFailFPY(Producto, FromDate, ToDate);
-                DataTable queryResult = dbContext.RunQuery(DataQueryFPYFails);
-                Resultado = DataTableHelper.DataTableToFailFPY(queryResult);
+                List<FamilyFPY> families = _context.FamiliesFPY.ToList();
+                foreach (FamilyFPY family in families)
+                {
+                    string Product = family.IdType;
+                    string DataQueryFPYDATAs = MesQueryFabric.QueryForProducedRAWFPY(Product, FromDate, ToDate);
+                    DataTable queryResult = dbContext.RunQuery(DataQueryFPYDATAs);
+                    List<ProducedRAWFPY> filteredData = DataTableHelper.DataTableToProducedRAW(queryResult);
+                    //.GroupBy(d => d.SerialNumber)
+                    //.Select(g => g.OrderBy(d => d.DATE).First())
+                    //.ToList();
+                    Result.AddRange(filteredData);
+                }
+
 
             }
             catch (Exception) { }
-            Resultado = Resultado.GroupBy(f => f.SerialNumber).Select(f => f.First()).ToList();
-            return Resultado;
+            return Result;
+        }
+
+        public List<FailureFPY> GetRAW_Fails(DateTime FromDate, DateTime ToDate)
+        {
+
+            List<FailureFPY> Result = new List<FailureFPY>();
+            try
+            {
+                List<FamilyFPY> families = _context.FamiliesFPY.ToList();
+                foreach (FamilyFPY family in families)
+                {
+                    string Product = family.IdType;
+                    string DataQueryFPYDATAs = MesQueryFabric.QueryForProducedRAWFPY(Product, FromDate, ToDate);
+                    DataTable queryResult = dbContext.RunQuery(DataQueryFPYDATAs);
+                    List<FailureFPY> filteredData = DataTableHelper.DataTableToFailFPY(queryResult);
+                    //.GroupBy(d => d.SerialNumber)
+                    //.Select(g => g.OrderBy(d => d.DATE).First())
+                    //.ToList();
+                    Result.AddRange(filteredData);
+                }
+
+            }
+            catch (Exception) { }
+            Result = Result.GroupBy(f => f.SerialNumber).Select(f => f.First()).ToList();
+            return Result;
         }
 
         public List<PiecesAnalyzed> GetPiecesAnalyzed(DateTime FromDate, DateTime ToDate)

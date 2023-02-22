@@ -390,23 +390,23 @@ namespace analysistools.api.Helpers
             return result;
         }
 
-        public static List<RAW_DATA> DataTableToDATA(DataTable data)
+        public static List<ProducedAndFilteredFPY> DataTableToProducedAndFilter(DataTable data)
         {
 
-            List<RAW_DATA> result = new List<RAW_DATA>();
+            List<ProducedAndFilteredFPY> result = new List<ProducedAndFilteredFPY>();
             foreach (DataRow row in data.Rows)
             {
                 try
                 {
-                    string dateTimeAsString = row["fecha"].ToString();
-                    RAW_DATA rawData = new RAW_DATA
+                    string dateTimeAsString = row["Fecha"].ToString();
+                    ProducedAndFilteredFPY rawData = new ProducedAndFilteredFPY
                     {
-                        Material = row["PDK_MATERIAL"].ToString(),
-                        Name = row["BMT_NAME"].ToString(),
-                        Var = row["PRP_VAR"].ToString(),
-                        IdType = row["RUNID_TYPE"].ToString(),
-                        Fecha = DateTime.Parse(dateTimeAsString),
-                        Contador = int.Parse(row["CONTADOR"].ToString())
+                        Material = row["MATERIAL"].ToString(),
+                        Name = row["NAME"].ToString(),
+                        Var = row["VAR"].ToString(),
+                        IdType = row["IDTYPE"].ToString(),
+                        Date = DateTime.Parse(dateTimeAsString),
+                        Amount = int.Parse(row["Cantidad"].ToString())
                     };
                     result.Add(rawData);
                 }
@@ -416,17 +416,45 @@ namespace analysistools.api.Helpers
             return result;
         }
 
-        public static List<RAW_FAIL> DataTableToFailFPY(DataTable data)
+        public static List<ProducedRAWFPY> DataTableToProducedRAW(DataTable data)
         {
 
-            List<RAW_FAIL> result = new List<RAW_FAIL>();
+            List<ProducedRAWFPY> result = new List<ProducedRAWFPY>();
+            foreach (DataRow row in data.Rows)
+            {
+                try
+                {
+                    string dateTimeAsString = row["RUN_DATE"].ToString();
+                    ProducedRAWFPY rawData = new ProducedRAWFPY
+                    {
+                        SerialNumber = row["RUNID"].ToString(),
+                        AUFTR = row["PDK_AUFTR"].ToString(),
+                        STATE = row["RUN_STATE"].ToString(),
+                        DATE = DateTime.Parse(dateTimeAsString),
+                        MATERIAL = row["PDK_MATERIAL"].ToString(),
+                        NAME = row["BMT_NAME"].ToString(),
+                        VAR = row["PRP_VAR"].ToString(),
+                        IDTYPE = (row["RUNID_TYPE"].ToString())
+                    };
+                    result.Add(rawData);
+                }
+
+                catch (Exception) { }
+            }
+            return result;
+        }
+
+        public static List<FailureFPY> DataTableToFailFPY(DataTable data)
+        {
+
+            List<FailureFPY> result = new List<FailureFPY>();
             foreach (DataRow row in data.Rows)
             {
                 try
                 {
                     //Console.WriteLine("==========");
                     string dateTimeAsString = row["RUN_DATE"].ToString();
-                    RAW_FAIL failure = new RAW_FAIL
+                    FailureFPY failure = new FailureFPY
                     {
                         SerialNumber = row["RUNID"].ToString(),
                         AUFTR = row["PDK_AUFTR"].ToString(),
@@ -438,10 +466,6 @@ namespace analysistools.api.Helpers
                         IDTYPE = row["RUNID_TYPE"].ToString(),
                         NUM = row["MRK_NUM"].ToString(),
                         BEZ = row["MRK_BEZ"].ToString(),
-                        EIN_GUT = row["MRK_EIN_GUT"].ToString(),
-                        USG = row["MRK_USG"].ToString(),
-                        OSG = row["MRK_OSG"].ToString(),
-
                     };
 
 

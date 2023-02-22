@@ -23,14 +23,14 @@ namespace analysistools.api.Controllers.FPYControllers
 
         // GET: api/FPYFailures
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<RAW_FAIL>>> GetRAW_FAILs()
+        public async Task<ActionResult<IEnumerable<FailureFPY>>> GetRAW_FAILs()
         {
             return await _context.RAW_FAILs.ToListAsync();
         }
 
         // GET: api/FPYFailures/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<RAW_FAIL>> GetRAW_FAIL(int id)
+        public async Task<ActionResult<FailureFPY>> GetRAW_FAIL(int id)
         {
             var rAW_FAIL = await _context.RAW_FAILs.FindAsync(id);
 
@@ -45,7 +45,7 @@ namespace analysistools.api.Controllers.FPYControllers
         // PUT: api/FPYFailures/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutRAW_FAIL(int id, RAW_FAIL rAW_FAIL)
+        public async Task<IActionResult> PutRAW_FAIL(int id, FailureFPY rAW_FAIL)
         {
             if (id != rAW_FAIL.ID)
             {
@@ -76,7 +76,7 @@ namespace analysistools.api.Controllers.FPYControllers
         // POST: api/FPYFailures
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<RAW_FAIL>> PostRAW_FAIL(RAW_FAIL rAW_FAIL)
+        public async Task<ActionResult<FailureFPY>> PostRAW_FAIL(FailureFPY rAW_FAIL)
         {
             _context.RAW_FAILs.Add(rAW_FAIL);
             await _context.SaveChangesAsync();

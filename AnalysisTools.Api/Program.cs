@@ -32,7 +32,7 @@ using (var db = new AppDbContext())
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.UseUrls("http://0.0.0.0:5001");
+builder.WebHost.UseUrls("http://0.0.0.0:5002");
 
 // Register services (in order to use dependency injection)
 builder.Services.AddScoped<IMesRepository, MesRepository>();

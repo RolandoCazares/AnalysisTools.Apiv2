@@ -24,80 +24,45 @@ namespace analysistools.api.Controllers.FPYControllers
             _context = context;
         }
 
-        [HttpGet("MES/DataByDay")]
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
-        public async Task<ActionResult<List<RAW_DATA>>> GetDATAFromMESByDay()
+
+        [HttpGet("MES/ProducedAndFilteredByCurrentDay")]
+        public async Task<ActionResult<List<ProducedAndFilteredFPY>>> GetProducedByCurrentDay()
         {
 
             DateTime currentDate = DateTime.Now.Date;
             DateTime fromDate = currentDate.AddDays(-1);
-            List<RAW_DATA> FPYData = _mesRepository.GetRAW_DATAs(fromDate, currentDate);
 
-            // Agregar los datos a la tabla RAW_DATAs
-            await _context.RAW_DATAs.AddRangeAsync(FPYData);
-            await _context.SaveChangesAsync();
+            List<ProducedAndFilteredFPY> FPYData = _mesRepository.GetProducedAndFiltereds(fromDate, currentDate);
 
-            // Agrupar los datos por día, material, var e idtype, y obtener la cantidad de elementos en cada grupo
-            var groupedData = FPYData
-                .GroupBy(data => new { data.DATE, data.MATERIAL, data.VAR, data.IDTYPE })
-                .Select(group => new
-                {
-                    CantidadAgrupados = group.Count(),
-                    Dia = group.Key.DATE,
-                    Material = group.Key.MATERIAL,
-                    Var = group.Key.VAR,
-                    IDType = group.Key.IDTYPE
-                })
-                .ToList();
-
-            List<RAW_DATAFILTER> FPYDataFiler = groupedData
-            .Select(data => new RAW_DATAFILTER
-            {
-                CANTIDAD = data.CantidadAgrupados,
-                DATE = data.Dia,
-                MATERIAL = data.Material,
-                VAR = data.Var,
-                IDTYPE = data.IDType
-            })
-            .ToList();
-
-            await _context.RAW_DATAsFilter.AddRangeAsync(FPYDataFiler);
-
-            // Guardar los cambios en la base de datos
+            await _context.ProducedAndFilteredFPYs.AddRangeAsync(FPYData);
             await _context.SaveChangesAsync();
 
             return Ok(FPYData);
         }
 
-        [HttpGet("MES/Data/{fromDate}/{toDate}")]
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
-        public async Task<ActionResult<List<RAW_DATA>>> GetDATAFromMES(string fromDate, string toDate)
-        {
-            DateTime FromDate = DateTime.ParseExact(fromDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
-            DateTime ToDate = DateTime.ParseExact(toDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
-            double diffDays = (ToDate - FromDate).TotalDays;
-            if (!(diffDays > 0 && diffDays <= 30)) return BadRequest("Solo se permite maximo 7 dias");
-            List<RAW_DATA> FPYData = new List<RAW_DATA>();
 
-            FPYData = _mesRepository.GetRAW_DATAs(FromDate, ToDate);
-            await _context.RAW_DATAs.AddRangeAsync(FPYData);
+        [HttpGet("MES/ProducedRawByCurrentDay")]
+        public async Task<ActionResult<List<ProducedRAWFPY>>> GetProducedRawByCurrentDay()
+        {
+
+            DateTime currentDate = DateTime.Now.Date;
+            DateTime fromDate = currentDate.AddDays(-1);
+
+            List<ProducedRAWFPY> FPYData = _mesRepository.GetProducedRAWFPYs(fromDate, currentDate);
+
+            await _context.ProducedRAWFPY.AddRangeAsync(FPYData);
             await _context.SaveChangesAsync();
 
             return Ok(FPYData);
         }
 
-        [HttpGet("MES/Fails/{Producto}/{fromDate}/{toDate}")]
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
-        public async Task<ActionResult<List<RAW_FAIL>>> GetFailsFromMES(string Producto, string fromDate, string toDate)
+        [HttpGet("MES/Fails")]
+        public async Task<ActionResult<List<FailureFPY>>> GetFailsFromMES()
         {
-            DateTime FromDate = DateTime.ParseExact(fromDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
-            DateTime ToDate = DateTime.ParseExact(toDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
-            double diffDays = (ToDate - FromDate).TotalDays;
-            if (!(diffDays > 0 && diffDays <= 31)) return BadRequest("Only maximum 31 days are allowed");
+            DateTime currentDate = DateTime.Now.Date;
+            DateTime fromDate = currentDate.AddDays(-1);
 
-            List<RAW_FAIL> FPYFail = new List<RAW_FAIL>();
-
-            FPYFail = _mesRepository.GetRAW_Fails(Producto, FromDate, ToDate);
+            List<FailureFPY> FPYFail = _mesRepository.GetRAW_Fails(fromDate, currentDate);
 
             await _context.RAW_FAILs.AddRangeAsync(FPYFail);
             await _context.SaveChangesAsync();
@@ -105,13 +70,31 @@ namespace analysistools.api.Controllers.FPYControllers
             return Ok(FPYFail);
         }
 
+
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+
+
+
         [HttpGet("DataByFamilyID/{FamilyId}/{fromDate}/{toDate}")]
         public async Task<ActionResult> GetDataFromLocalDB(int FamilyId, string fromDate, string toDate)
         {
             DateTime FromDate = DateTime.ParseExact(fromDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
             DateTime ToDate = DateTime.ParseExact(toDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
 
-            List<RAW_DATA> result = new List<RAW_DATA>();
+            List<ProducedAndFilteredFPY> result = new List<ProducedAndFilteredFPY>();
 
             double diffDays = (ToDate - FromDate).TotalDays;
             if (!(diffDays > 0 && diffDays <= 7)) return BadRequest("Solo se permite maximo 7 dias");
@@ -132,14 +115,14 @@ namespace analysistools.api.Controllers.FPYControllers
                 stations.AddRange(_context.StationsFPY.Where(s => s.ProcessID == process.Id).ToList());
             }
 
-            List<RAW_DATA> FaultsFilteredByStation = new List<RAW_DATA>();
+            List<ProducedAndFilteredFPY> FaultsFilteredByStation = new List<ProducedAndFilteredFPY>();
             foreach(StationFPY station in stations)
             {   
-                FaultsFilteredByStation.AddRange(_context.RAW_DATAs.Where(f => f.NAME== station.Name && f.DATE >= FromDate && f.DATE <= ToDate).ToList());
+                FaultsFilteredByStation.AddRange(_context.ProducedAndFilteredFPYs.Where(f => f.Name== station.Name && f.Date >= FromDate && f.Date <= ToDate).ToList());
             }
             result.AddRange(FaultsFilteredByStation);
 
-            result = result.OrderBy(f => f.DATE).ToList();
+            result = result.OrderBy(f => f.Date).ToList();
             return Ok(result);
         }
 
@@ -150,20 +133,20 @@ namespace analysistools.api.Controllers.FPYControllers
             DateTime FromDate = DateTime.ParseExact(fromDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
             DateTime ToDate = DateTime.ParseExact(toDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
 
-            List<RAW_DATA> result = new List<RAW_DATA>();
+            List<ProducedAndFilteredFPY> result = new List<ProducedAndFilteredFPY>();
 
             ProcessFPY Process = await _context.ProcessesFPY.FindAsync(ProcessID);
             if (Process == null) return NotFound("The Process doesn`t exist.");
             List<StationFPY> stations = _context.StationsFPY.Where(l => l.ProcessID == Process.Id).ToList();
 
-            List<RAW_DATA> FaultsFilteredByStation = new List<RAW_DATA>();
+            List<ProducedAndFilteredFPY> FaultsFilteredByStation = new List<ProducedAndFilteredFPY>();
             foreach (StationFPY station in stations)
             {
-                FaultsFilteredByStation.AddRange(_context.RAW_DATAs.Where(f => f.NAME == station.Name && f.DATE >= FromDate && f.DATE <= ToDate).ToList());
+                FaultsFilteredByStation.AddRange(_context.ProducedAndFilteredFPYs.Where(f => f.Name == station.Name && f.Date >= FromDate && f.Date <= ToDate).ToList());
             }
             result.AddRange(FaultsFilteredByStation);
 
-            result = result.OrderBy(f => f.DATE).ToList();
+            result = result.OrderBy(f => f.Date).ToList();
             return Ok(result);
         }
 
@@ -173,7 +156,7 @@ namespace analysistools.api.Controllers.FPYControllers
             DateTime FromDate = DateTime.ParseExact(fromDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
             DateTime ToDate = DateTime.ParseExact(toDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
 
-            List<RAW_FAIL> result = new List<RAW_FAIL>();
+            List<FailureFPY> result = new List<FailureFPY>();
 
             double diffDays = (ToDate - FromDate).TotalDays;
             if (!(diffDays > 0 && diffDays <= 7)) return BadRequest("Solo se permite maximo 7 dias");
@@ -194,7 +177,7 @@ namespace analysistools.api.Controllers.FPYControllers
                 stations.AddRange(_context.StationsFPY.Where(s => s.ProcessID == process.Id).ToList());
             }
 
-            List<RAW_FAIL> FailsFilteredByStation = new List<RAW_FAIL>();
+            List<FailureFPY> FailsFilteredByStation = new List<FailureFPY>();
             foreach (StationFPY station in stations)
             {
                 FailsFilteredByStation.AddRange(_context.RAW_FAILs.Where(f => f.NAME == station.Name && f.DATE >= FromDate && f.DATE <= ToDate).ToList());
@@ -212,13 +195,13 @@ namespace analysistools.api.Controllers.FPYControllers
             DateTime FromDate = DateTime.ParseExact(fromDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
             DateTime ToDate = DateTime.ParseExact(toDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
 
-            List<RAW_FAIL> result = new List<RAW_FAIL>();
+            List<FailureFPY> result = new List<FailureFPY>();
 
             ProcessFPY Process = await _context.ProcessesFPY.FindAsync(ProcessID);
             if (Process == null) return NotFound("The Process doesn`t exist.");
             List<StationFPY> stations = _context.StationsFPY.Where(l => l.ProcessID == Process.Id).ToList();
 
-            List<RAW_FAIL> FailsFilteredByStation = new List<RAW_FAIL>();
+            List<FailureFPY> FailsFilteredByStation = new List<FailureFPY>();
             foreach (StationFPY station in stations)
             {
                 FailsFilteredByStation.AddRange(_context.RAW_FAILs.Where(f => f.NAME == station.Name && f.DATE >= FromDate && f.DATE <= ToDate).ToList());
