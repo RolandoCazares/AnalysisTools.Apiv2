@@ -3,11 +3,14 @@ using analysistools.api.Data;
 using analysistools.api.Models.Continental;
 using analysistools.api.Models.FPY;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using NuGet.Packaging;
+using System.Diagnostics;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace analysistools.api.Helpers
 {
-    public class FiltersDbContex : ControllerBase
+    public class FiltersDbContex
     {
        
         private readonly AppDbContext _context;
@@ -17,46 +20,72 @@ namespace analysistools.api.Helpers
             _context = context;
         }
 
-        public async List<ProducedAndFilteredFPY> FilterProducedByFamily(int FamilyID, DateTime fromDate, DateTime toDate)
+        public async Task<List<ProducedAndFilteredFPY>> FilterProducedByFamily(int FamilyID, DateTime fromDate, DateTime toDate)
         {
+            var family = await _context.FamiliesFPY.FindAsync(FamilyID);
+            if (family == null) throw new ArgumentException("The family doesn`t exist.");
+
             List<ProducedAndFilteredFPY> result = new List<ProducedAndFilteredFPY>();
 
-            FamilyFPY family = await _context.FamiliesFPY.FindAsync(FamilyID);
-            if (family == null) return NotFound("The family doesn`t exist.");
+            List<LineFPY> lines = _context.LinesFPY.Where(l => l.FamilyId == family.Id).ToList();
 
-            List<ProducedAndFilteredFPY> ProducedFilteredByFamily = _context.ProducedAndFilteredFPYs.ToList();
-            foreach (ProducedAndFilteredFPY Product in ProducedFilteredByFamily)
+            List<ProcessFPY> processesOfLine = new List<ProcessFPY>();
+            foreach (LineFPY line in lines)
             {
-                ProducedFilteredByFamily.AddRange(_context.ProducedAndFilteredFPYs.Where(f => f.IdType == family.IdType && f.Date >= fromDate && f.Date <= toDate).ToList());
+                processesOfLine.AddRange(_context.ProcessesFPY.Where(w => w.LineID == line.Id).ToList());
             }
 
-            result.AddRange(ProducedFilteredByFamily);
-            return Ok(result);
+            List<StationFPY> stationsOfLine = new List<StationFPY>();
+            foreach (ProcessFPY process in processesOfLine)
+            {
+                stationsOfLine.AddRange(_context.StationsFPY.Where(w => w.ProcessID == process.Id).ToList());
+            }
+
+            List<ModelFPY> modelsOfTheStationsInTheLine = new List<ModelFPY>();
+            foreach (StationFPY station in stationsOfLine)
+            {
+                modelsOfTheStationsInTheLine.AddRange(_context.ModelsFPY.Where(w => w.StationID == station.Id).ToList());
+            }
+
+            List<ProducedAndFilteredFPY> ProducedFiltereByModelInAStationInALine = new List<ProducedAndFilteredFPY>();
+            foreach (ModelFPY model in modelsOfTheStationsInTheLine)
+            {
+                ProducedFiltereByModelInAStationInALine.AddRange(_context.ProducedAndFilteredFPYs.Where(f => f.Name == model.Name_Model && f.Date >= fromDate && f.Date <= toDate).ToList());
+            }
+            result.AddRange(ProducedFiltereByModelInAStationInALine);
+            result = result.OrderBy(f => f.Date).ToList();
+            return result;
         }
 
-        public async Task<IActionResult> FilterProducedByLine(int LineID, DateTime fromDate, DateTime toDate)
+        public async Task<List<ProducedAndFilteredFPY>> FilterProducedByLine(int LineID, DateTime fromDate, DateTime toDate)
         {
+            var line = await _context.LinesFPY.FindAsync(LineID);
+            if (line == null) throw new ArgumentException("The line doesn`t exist.");
+
             List<ProducedAndFilteredFPY> result = new List<ProducedAndFilteredFPY>();
+            List<ProcessFPY> processesOfLine = _context.ProcessesFPY.Where(l => l.LineID == line.Id).ToList();
 
-            LineFPY line = await _context.LinesFPY.FindAsync(LineID);
-            if (line == null) return NotFound("The line doesn`t exist in the LocalDatabase.");
-
-            List<ProcessFPY> processes = _context.ProcessesFPY.Where(l => l.LineID == line.Id).ToList();
-
-            List<StationFPY> stations = new List<StationFPY>();
-            foreach (ProcessFPY proces in processes)
+            List<StationFPY> stationsOfLine = new List<StationFPY>();
+            foreach (ProcessFPY process in processesOfLine)
             {
-                stations.AddRange(_context.StationsFPY.Where(w => w.ProcessID == proces.Id).ToList());
+                stationsOfLine.AddRange(_context.StationsFPY.Where(w => w.ProcessID == process.Id).ToList());
             }
 
-            List<ProducedAndFilteredFPY> ProducedFilteredByLine = new List<ProducedAndFilteredFPY>();
-            foreach (StationFPY station in stations)
+            List<ModelFPY> modelsOfTheStationsInTheLine= new List<ModelFPY>();
+            foreach(StationFPY station in stationsOfLine)
             {
-                ProducedFilteredByLine.AddRange(_context.ProducedAndFilteredFPYs.Where(f => f.Name == station.Name && f.Date >= fromDate && f.Date <= toDate).ToList());
+                modelsOfTheStationsInTheLine.AddRange(_context.ModelsFPY.Where(w => w.StationID == station.Id).ToList());
             }
 
-            result.AddRange(ProducedFilteredByLine);
-            return Ok(result);
+            List<ProducedAndFilteredFPY> ProducedFiltereByModelInAStationInALine = new List<ProducedAndFilteredFPY>();
+            foreach (ModelFPY model in modelsOfTheStationsInTheLine)
+            {
+                ProducedFiltereByModelInAStationInALine.AddRange(_context.ProducedAndFilteredFPYs.Where(f => f.Name == model.Name_Model && f.Date >= fromDate && f.Date <= toDate).ToList());
+            }
+            result.AddRange(ProducedFiltereByModelInAStationInALine);
+            result = result.OrderBy(f => f.Date).ToList();
+            return result;
+
         }
     }
 }
