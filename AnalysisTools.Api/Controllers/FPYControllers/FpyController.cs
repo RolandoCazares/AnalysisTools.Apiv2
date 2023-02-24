@@ -1,6 +1,7 @@
 ﻿using analysistools.api.Contracts;
 using analysistools.api.Data;
 using analysistools.api.Models.FPY;
+using analysistools.api.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,11 +20,13 @@ namespace analysistools.api.Controllers.FPYControllers
     {
         private readonly IMesRepository _mesRepository;
         private readonly AppDbContext _context;
+        private readonly FiltersDbContex _GetDataLocalDB;
 
-        public FpyController(IMesRepository mesRepository, AppDbContext context)
+        public FpyController(IMesRepository mesRepository, AppDbContext context, FiltersDbContex getDataLocalDB)
         {
             _mesRepository = mesRepository;
             _context = context;
+            _GetDataLocalDB = getDataLocalDB;
         }
 
 
@@ -82,44 +85,46 @@ namespace analysistools.api.Controllers.FPYControllers
 
             List<ProducedAndFilteredFPY> result = new List<ProducedAndFilteredFPY>();
 
-            double diffDays = (ToDate - FromDate).TotalDays;
-            if (!(diffDays > 0 && diffDays <= 7)) return BadRequest("Solo se permite maximo 7 dias");
+            //double diffDays = (ToDate - FromDate).TotalDays;
+            //if (!(diffDays > 0 && diffDays <= 7)) return BadRequest("Solo se permite maximo 7 dias");
 
-            FamilyFPY family = await _context.FamiliesFPY.FindAsync(FamilyId);
-            if (family == null) return NotFound("The family doesn`t exist.");
-            List<LineFPY> lines = _context.LinesFPY.Where(l => l.FamilyId == family.Id).ToList();
+            //FamilyFPY family = await _context.FamiliesFPY.FindAsync(FamilyId);
+            //if (family == null) return NotFound("The family doesn`t exist.");
+            //List<LineFPY> lines = _context.LinesFPY.Where(l => l.FamilyId == family.Id).ToList();
 
-            List<ProcessFPY> processes = new List<ProcessFPY>();
-            foreach (LineFPY line in lines)
-            {
-                processes.AddRange(_context.ProcessesFPY.Where(w => w.LineID == line.Id).ToList());
-            }
+            //List<ProcessFPY> processes = new List<ProcessFPY>();
+            //foreach (LineFPY line in lines)
+            //{
+            //    processes.AddRange(_context.ProcessesFPY.Where(w => w.LineID == line.Id).ToList());
+            //}
 
-            List<StationFPY> stations = new List<StationFPY>();
-            foreach (ProcessFPY process in processes)
-            {
-                stations.AddRange(_context.StationsFPY.Where(s => s.ProcessID == process.Id).ToList());
-            }
+            //List<StationFPY> stations = new List<StationFPY>();
+            //foreach (ProcessFPY process in processes)
+            //{
+            //    stations.AddRange(_context.StationsFPY.Where(s => s.ProcessID == process.Id).ToList());
+            //}
 
-            List<ModelFPY> models = new List<ModelFPY>();
-            foreach (StationFPY station in stations)
-            {
-                models.AddRange(_context.ModelsFPY.Where(s => s.StationID == station.Id).ToList());
-            }
+            //List<ModelFPY> models = new List<ModelFPY>();
+            //foreach (StationFPY station in stations)
+            //{
+            //    models.AddRange(_context.ModelsFPY.Where(s => s.StationID == station.Id).ToList());
+            //}
 
-            List<ProducedAndFilteredFPY> ProducedFilteredByStation = new List<ProducedAndFilteredFPY>();
-            foreach (StationFPY station in stations)
-            {
-                ProducedFilteredByStation.AddRange(_context.ProducedAndFilteredFPYs.Where(f => f.Name == station.Name && f.Date >= FromDate && f.Date <= ToDate).ToList());
-            }
+            //List<ProducedAndFilteredFPY> ProducedFilteredByStation = new List<ProducedAndFilteredFPY>();
+            //foreach (StationFPY station in stations)
+            //{
+            //    ProducedFilteredByStation.AddRange(_context.ProducedAndFilteredFPYs.Where(f => f.Name == station.Name && f.Date >= FromDate && f.Date <= ToDate).ToList());
+            //}
 
-            List<ModelFPY> ProducedFilteredByModel = new List<ModelFPY>();
-            foreach (ProducedAndFilteredFPY falla in ProducedFilteredByStation)
-            {
-                ProducedFilteredByModel.AddRange(_context.ModelsFPY.Where(f => f.Name_Model == falla.Material).ToList());
-            }
-            result.AddRange(ProducedFilteredByStation);
-            result = result.OrderBy(f => f.Date).ToList();
+            //List<ModelFPY> ProducedFilteredByModel = new List<ModelFPY>();
+            //foreach (ProducedAndFilteredFPY falla in ProducedFilteredByStation)
+            //{
+            //    ProducedFilteredByModel.AddRange(_context.ModelsFPY.Where(f => f.Name_Model == falla.Material).ToList());
+            //}
+            //result.AddRange(ProducedFilteredByStation);
+            //result = result.OrderBy(f => f.Date).ToList();
+
+            List<ProducedAndFilteredFPY> ProducedAndFilter = _GetDataLocalDB.FilterProducedByFamily(FamilyId, FromDate, ToDate)
 
             //CONTADOR de piezas producidas
             int CANTIDADTOTAL = result.Sum(x => x.Amount);
