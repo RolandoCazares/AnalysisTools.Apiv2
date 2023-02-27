@@ -1,6 +1,5 @@
 ﻿using analysistools.api.Models.Continental;
 using analysistools.api.Models.FPY;
-using analysistools.api.Models.FPY.PRODUCTS;
 using analysistools.api.Models.IDR;
 using analysistools.api.Models.IDR.DTO;
 using analysistools.api.Models.Optical;

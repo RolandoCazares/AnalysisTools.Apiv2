@@ -40,6 +40,8 @@ builder.Services.AddScoped<IAccessRepository, AccessRepository>();
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IComponentsService, ComponentsService>();
+builder.Services.AddScoped<IFilters, Filters>();
+builder.Services.AddScoped<IAccommodate, Accommodate>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

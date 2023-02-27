@@ -25,14 +25,14 @@ namespace analysistools.api.Controllers.FPYControllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<FailureFPY>>> GetRAW_FAILs()
         {
-            return await _context.RAW_FAILs.ToListAsync();
+            return await _context.FailuresFPY.ToListAsync();
         }
 
         // GET: api/FPYFailures/5
         [HttpGet("{id}")]
         public async Task<ActionResult<FailureFPY>> GetRAW_FAIL(int id)
         {
-            var rAW_FAIL = await _context.RAW_FAILs.FindAsync(id);
+            var rAW_FAIL = await _context.FailuresFPY.FindAsync(id);
 
             if (rAW_FAIL == null)
             {
@@ -78,7 +78,7 @@ namespace analysistools.api.Controllers.FPYControllers
         [HttpPost]
         public async Task<ActionResult<FailureFPY>> PostRAW_FAIL(FailureFPY rAW_FAIL)
         {
-            _context.RAW_FAILs.Add(rAW_FAIL);
+            _context.FailuresFPY.Add(rAW_FAIL);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetRAW_FAIL", new { id = rAW_FAIL.ID }, rAW_FAIL);
@@ -88,13 +88,13 @@ namespace analysistools.api.Controllers.FPYControllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRAW_FAIL(int id)
         {
-            var rAW_FAIL = await _context.RAW_FAILs.FindAsync(id);
+            var rAW_FAIL = await _context.FailuresFPY.FindAsync(id);
             if (rAW_FAIL == null)
             {
                 return NotFound();
             }
 
-            _context.RAW_FAILs.Remove(rAW_FAIL);
+            _context.FailuresFPY.Remove(rAW_FAIL);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -102,7 +102,7 @@ namespace analysistools.api.Controllers.FPYControllers
 
         private bool RAW_FAILExists(int id)
         {
-            return _context.RAW_FAILs.Any(e => e.ID == id);
+            return _context.FailuresFPY.Any(e => e.ID == id);
         }
     }
 }

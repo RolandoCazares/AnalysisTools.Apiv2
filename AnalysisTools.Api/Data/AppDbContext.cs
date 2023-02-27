@@ -27,11 +27,13 @@ namespace analysistools.api.Data
         public DbSet<StationIDR> StationsIDR { get; set; }
         public DbSet<Failure> Failures { get; set; }
         public DbSet<ProducedUnits> ProducedUnits { get; set; }
+
+        //-----------------FPY-------------------//
         public DbSet<ProducedAndFilteredFPY> ProducedAndFilteredFPYs { get; set; }
         public DbSet<ProducedRAWFPY> ProducedRAWFPY { get; set; }
+        public DbSet<FailureFPY> FailuresFPY { get; set; }
 
-        //
-        public DbSet<FailureFPY> RAW_FAILs { get; set; }
+
         public DbSet<FamilyFPY> FamiliesFPY { get; set; }
         public DbSet<LineFPY> LinesFPY { get; set; }
         public DbSet<ProcessFPY> ProcessesFPY { get; set; }
@@ -136,7 +138,7 @@ namespace analysistools.api.Data
             
 
             //------------------------------------------------------------------//
-            //-------------------------Controllers by IDR-----------------------//
+            //-------------------------Controllers by FPY-----------------------//
             //------------------------------------------------------------------//
 
             modelBuilder.Entity<ProducedAndFilteredFPY>().ToTable("FPY01ProducedANDFilter");
