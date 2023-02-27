@@ -334,7 +334,6 @@ namespace analysistools.api.Helpers
             return result;
         }
 
-
         public async Task<List<FailureFPY>> FilterFailsByLine(int LineID, DateTime fromDate, DateTime toDate)
         {
             List<FailureFPY> result = new List<FailureFPY>();
@@ -355,15 +354,23 @@ namespace analysistools.api.Helpers
                 Models.AddRange(_context.ModelsFPY.Where(w => w.StationID == station.Id).ToList());
             }
 
-            List<FailureFPY> FailsFilteredByLine = new List<FailureFPY>();
-            foreach (ModelFPY model in Models)
-            {
-                FailsFilteredByLine.AddRange(_context.FailuresFPY
-                    .Where(f => f.DATE >= fromDate && f.DATE <= toDate
-                        && stations.Select(s => s.Name).Contains(f.NAME)
-                        && Models.Select(m => m.Name_Model).Contains(f.MATERIAL))
-                    .ToList());
-            }
+            List<string> uniqueModelNames = _context.ModelsFPY
+            .Where(m => stations.Select(s => s.Id).Contains(m.StationID))
+            .Select(m => m.Name_Model)
+            .Distinct()
+            .ToList();
+
+            List<ModelFPY> uniqueModels = _context.ModelsFPY
+                .Where(m => uniqueModelNames.Contains(m.Name_Model))
+                .ToList();
+
+            fromDate = fromDate.AddDays(-1);
+            // Obtener producciones filtradas por línea
+            List<FailureFPY> FailsFilteredByLine = _context.FailuresFPY
+                .Where(f => f.DATE >= fromDate && f.DATE <= toDate
+                    && stations.Select(s => s.Name).Contains(f.NAME)
+                    && uniqueModels.Select(m => m.Name_Model).Contains(f.MATERIAL))
+                .ToList();
 
             result = FailsFilteredByLine.Select(p => new FailureFPY
             {
@@ -378,6 +385,7 @@ namespace analysistools.api.Helpers
                 IDTYPE = p.IDTYPE,
                 BEZ = p.BEZ,
             }).ToList();
+
             return result;
         }
 
@@ -389,21 +397,23 @@ namespace analysistools.api.Helpers
 
             List<StationFPY> stations = _context.StationsFPY.Where(w => w.ProcessID == process.Id).ToList();
 
-            List<ModelFPY> Models = new List<ModelFPY>();
-            foreach (StationFPY station in stations)
-            {
-                Models.AddRange(_context.ModelsFPY.Where(w => w.StationID == station.Id).ToList());
-            }
+            List<string> uniqueModelNames = _context.ModelsFPY
+            .Where(m => stations.Select(s => s.Id).Contains(m.StationID))
+            .Select(m => m.Name_Model)
+            .Distinct()
+            .ToList();
 
-            List<FailureFPY> FailsFilteredByProcess = new List<FailureFPY>();
-            foreach (ModelFPY model in Models)
-            {
-                FailsFilteredByProcess.AddRange(_context.FailuresFPY
-                    .Where(f => f.DATE >= fromDate && f.DATE <= toDate
-                        && stations.Select(s => s.Name).Contains(f.NAME)
-                        && Models.Select(m => m.Name_Model).Contains(f.MATERIAL))
-                    .ToList());
-            }
+            List<ModelFPY> uniqueModels = _context.ModelsFPY
+                .Where(m => uniqueModelNames.Contains(m.Name_Model))
+                .ToList();
+
+            fromDate = fromDate.AddDays(-1);
+            // Obtener producciones filtradas por línea
+            List<FailureFPY> FailsFilteredByProcess = _context.FailuresFPY
+                .Where(f => f.DATE >= fromDate && f.DATE <= toDate
+                    && stations.Select(s => s.Name).Contains(f.NAME)
+                    && uniqueModels.Select(m => m.Name_Model).Contains(f.MATERIAL))
+                .ToList();
 
             result = FailsFilteredByProcess.Select(p => new FailureFPY
             {
@@ -430,25 +440,25 @@ namespace analysistools.api.Helpers
 
             List<ModelFPY> models = _context.ModelsFPY.Where(m => m.StationID == station.Id).ToList();
 
-            List<FailureFPY> failsFilteredByStation = new List<FailureFPY>();
-            foreach (ModelFPY model in models)
-            {
-                fromDate = fromDate.AddDays(-1);
-                failsFilteredByStation.AddRange(_context.FailuresFPY
-                    .Where(f => f.DATE >= fromDate && f.DATE <= toDate
-                        && f.NAME == station.Name
-                        && f.MATERIAL == model.Name_Model)
-                    .ToList());
-            }
+            fromDate = fromDate.AddDays(-1);
+            // Obtener producciones filtradas por línea
+            List<FailureFPY> FailsFilteredByStation = _context.FailuresFPY
+            .Where(f => f.DATE >= fromDate && f.DATE <= toDate
+                && f.NAME == station.Name
+                && models.Select(m => m.Name_Model).Contains(f.MATERIAL))
+            .ToList();
 
-            result = failsFilteredByStation.Select(p => new FailureFPY
+            result = FailsFilteredByStation.Select(p => new FailureFPY
             {
                 ID = p.ID,
+                SerialNumber = p.SerialNumber,
+                AUFTR = p.AUFTR,
+                STATE = p.STATE,
+                DATE = p.DATE,
                 MATERIAL = p.MATERIAL,
                 NAME = p.NAME,
                 VAR = p.VAR,
                 IDTYPE = p.IDTYPE,
-                DATE = p.DATE,
                 BEZ = p.BEZ,
             }).ToList();
 
