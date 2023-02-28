@@ -4,6 +4,8 @@
     {
         public TotalsFPY Totals { get; set; }
 
+        public List<ReportFPY> ReportFPY { get; set; }
+
         public TotalsFPYByProcess TotalsByProcess { get; set; }
 
         public TotalsFPYDataByProcess DataByProcess { get; set; }
