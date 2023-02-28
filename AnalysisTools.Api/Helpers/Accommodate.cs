@@ -136,6 +136,7 @@ namespace analysistools.api.Helpers
                 var Response = new Response
                 {
                     Totals = Totals,
+                    ReportFPY= productionDataList,
                     TotalsByProcess = TotalsByProcess,
                     DataByProcess = DataByProcess,
                 };
