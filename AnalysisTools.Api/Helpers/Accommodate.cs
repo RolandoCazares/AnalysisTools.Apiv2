@@ -92,6 +92,26 @@ namespace analysistools.api.Helpers
                           .ToList<object>()
                 );
 
+                //------------------Reporte tabla FPY------------------//
+
+                List<ReportFPY> productionDataList = new List<ReportFPY>();
+
+                foreach (string var in totalProducedByProcess.Keys)
+                {
+                    if (totalFailuresByProcess.ContainsKey(var) && FPYbyProcess.ContainsKey(var))
+                    {
+                        ReportFPY data = new ReportFPY
+                        {
+                            Var = var,
+                            TotalProduced = totalProducedByProcess[var],
+                            TotalFailures = totalFailuresByProcess[var],
+                            FPY = FPYbyProcess[var]
+                        };
+                        productionDataList.Add(data);
+                    }
+                }
+                productionDataList = productionDataList.OrderBy(x => x.Var).ToList();
+
                 //-----------------Encapsulamiento-------------//
                 var Totals = new TotalsFPY
                 {
