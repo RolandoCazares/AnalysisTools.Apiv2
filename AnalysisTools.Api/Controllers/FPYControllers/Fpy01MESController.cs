@@ -36,21 +36,6 @@ namespace analysistools.api.Controllers.FPYControllers
             return Ok(FPYData);
         }
 
-        [HttpGet("ProducedByCurrentDayMax")]
-        public async Task<ActionResult<List<PRODUCEDMAX>>> GetProducedByCurrentDayMax()
-        {
-
-            DateTime currentDate = DateTime.Now.Date;
-            DateTime fromDate = currentDate.AddDays(-1);
-
-            List<PRODUCEDMAX> FPYData = _mesRepository.GetProducedMAX(fromDate, currentDate);
-
-            await _context.PRODUCEDMAXes.AddRangeAsync(FPYData);
-            await _context.SaveChangesAsync();
-
-            return Ok(FPYData);
-        }
-
 
         [HttpGet("ProducedRAWByCurrentDay")]
         public async Task<ActionResult<List<ProducedRAWFPY>>> GetProducedRAWByCurrentDay()

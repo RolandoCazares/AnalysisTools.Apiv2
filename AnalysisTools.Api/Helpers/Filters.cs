@@ -19,179 +19,129 @@ namespace analysistools.api.Helpers
 
         public async Task<List<ProducedAndFilteredFPY>> FilterProducedByFamilyy(int FamilyID, DateTime fromDate, DateTime toDate)
         {
-            List<ProducedAndFilteredFPY> result = new List<ProducedAndFilteredFPY>();
+            var result = new List<ProducedAndFilteredFPY>();
 
-            List<FamilyFPY> family = await _context.FamiliesFPY.Where(f => f.Id == FamilyID).ToListAsync();
+            var family = await _context.FamiliesFPY
+                .Where(f => f.Id == FamilyID)
+                .Include(f => f.LinesFPY)
+                    .ThenInclude(l => l.ProcessesFPY)
+                        .ThenInclude(p => p.StationsFPY)
+                            .ThenInclude(s => s.ModelsFPY)
+                .FirstOrDefaultAsync();
 
-            List<LineFPY> lines = new List<LineFPY>();
-            foreach (FamilyFPY fami in family)
+            if (family != null)
             {
-                lines.AddRange(_context.LinesFPY.Where(f => f.FamilyId == fami.Id).ToList());
+                var uniqueModelNames = family.LinesFPY
+                    .SelectMany(l => l.ProcessesFPY)
+                    .SelectMany(p => p.StationsFPY)
+                    .SelectMany(s => s.ModelsFPY)
+                    .Select(m => m.Name_Model)
+                    .Distinct()
+                    .ToList();
+
+                fromDate = fromDate.AddDays(-1);
+
+                var producedFilteredByLine = await _context.ProducedAndFilteredFPYs
+                    .Where(f => f.Date >= fromDate && f.Date <= toDate
+                        && family.LinesFPY.Select(l => l.Name).Contains(f.Name)
+                        && uniqueModelNames.Contains(f.Material))
+                    .ToListAsync();
+
+                result = producedFilteredByLine.Select(p => new ProducedAndFilteredFPY
+                {
+                    ID = p.ID,
+                    Material = p.Material,
+                    Name = p.Name,
+                    Var = p.Var,
+                    IdType = p.IdType,
+                    Date = p.Date,
+                    Amount = p.Amount,
+                }).ToList();
             }
 
-            List<ProcessFPY> processes = new List<ProcessFPY>();
-            foreach (LineFPY line in lines)
-            {
-                processes.AddRange(_context.ProcessesFPY.Where(f => f.LineID == line.Id).ToList());
-            }
-
-            List<StationFPY> stations = new List<StationFPY>();
-            foreach (ProcessFPY proces in processes)
-            {
-                stations.AddRange(_context.StationsFPY.Where(w => w.ProcessID == proces.Id).ToList());
-            }
-
-            List<ModelFPY> Models = new List<ModelFPY>();
-            foreach (StationFPY station in stations)
-            {
-                Models.AddRange(_context.ModelsFPY.Where(w => w.StationID == station.Id).ToList());
-            }
-
-            List<string> uniqueModelNames = _context.ModelsFPY
-            .Where(m => stations.Select(s => s.Id).Contains(m.StationID))
-            .Select(m => m.Name_Model)
-            .Distinct()
-            .ToList();
-
-            List<ModelFPY> uniqueModels = _context.ModelsFPY
-                .Where(m => uniqueModelNames.Contains(m.Name_Model))
-                .ToList();
-
-            fromDate = fromDate.AddDays(-1);
-            // Obtener producciones filtradas por línea
-            List<ProducedAndFilteredFPY> ProducedFilteredByLine = _context.ProducedAndFilteredFPYs
-                .Where(f => f.Date >= fromDate && f.Date <= toDate
-                    && stations.Select(s => s.Name).Contains(f.Name)
-                    && uniqueModels.Select(m => m.Name_Model).Contains(f.Material))
-                .ToList();
-
-            result = ProducedFilteredByLine.Select(p => new ProducedAndFilteredFPY
-            {
-                ID = p.ID,
-                Material = p.Material,
-                Name = p.Name,
-                Var = p.Var,
-                IdType = p.IdType,
-                Date = p.Date,
-                Amount = p.Amount,
-            }).ToList();
             return result;
         }
 
         public async Task<List<FailureFPY>> FilterFailsByFamily(int FamilyID, DateTime fromDate, DateTime toDate)
         {
-            List<FailureFPY> result = new List<FailureFPY>();
+            var result = new List<FailureFPY>();
 
-            List<FamilyFPY> family = await _context.FamiliesFPY.Where(f => f.Id == FamilyID).ToListAsync();
+            var family = await _context.FamiliesFPY
+                .Where(f => f.Id == FamilyID)
+                .Include(f => f.LinesFPY)
+                    .ThenInclude(l => l.ProcessesFPY)
+                        .ThenInclude(p => p.StationsFPY)
+                            .ThenInclude(s => s.ModelsFPY)
+                .FirstOrDefaultAsync();
 
-            List<LineFPY> lines = new List<LineFPY>();
-            foreach (FamilyFPY fami in family)
+            if (family != null)
             {
-                lines.AddRange(_context.LinesFPY.Where(f => f.FamilyId == fami.Id).ToList());
+                var uniqueModelNames = family.LinesFPY
+                    .SelectMany(l => l.ProcessesFPY)
+                    .SelectMany(p => p.StationsFPY)
+                    .SelectMany(s => s.ModelsFPY)
+                    .Select(m => m.Name_Model)
+                    .Distinct()
+                    .ToList();
+
+                fromDate = fromDate.AddDays(-1);
+
+                var failsFilteredByLine = await _context.FailuresFPY
+                    .Where(f => f.DATE >= fromDate && f.DATE <= toDate
+                        && family.LinesFPY.Select(l => l.Name).Contains(f.NAME)
+                        && uniqueModelNames.Contains(f.MATERIAL))
+                    .ToListAsync();
+
+                result = failsFilteredByLine.Select(p => new FailureFPY
+                {
+                    ID = p.ID,
+                    SerialNumber = p.SerialNumber,
+                    AUFTR = p.AUFTR,
+                    STATE = p.STATE,
+                    DATE = p.DATE,
+                    MATERIAL = p.MATERIAL,
+                    NAME = p.NAME,
+                    VAR = p.VAR,
+                    IDTYPE = p.IDTYPE,
+                    BEZ = p.BEZ,
+                }).ToList();
             }
-
-            List<ProcessFPY> processes = new List<ProcessFPY>();
-            foreach (LineFPY line in lines)
-            {
-                processes.AddRange(_context.ProcessesFPY.Where(f => f.LineID == line.Id).ToList());
-            }
-
-            List<StationFPY> stations = new List<StationFPY>();
-            foreach (ProcessFPY proces in processes)
-            {
-                stations.AddRange(_context.StationsFPY.Where(w => w.ProcessID == proces.Id).ToList());
-            }
-
-            List<ModelFPY> Models = new List<ModelFPY>();
-            foreach (StationFPY station in stations)
-            {
-                Models.AddRange(_context.ModelsFPY.Where(w => w.StationID == station.Id).ToList());
-            }
-
-            List<string> uniqueModelNames = _context.ModelsFPY
-            .Where(m => stations.Select(s => s.Id).Contains(m.StationID))
-            .Select(m => m.Name_Model)
-            .Distinct()
-            .ToList();
-
-            List<ModelFPY> uniqueModels = _context.ModelsFPY
-                .Where(m => uniqueModelNames.Contains(m.Name_Model))
-                .ToList();
-
-            fromDate = fromDate.AddDays(-1);
-            //Obtener producciones filtradas por línea
-            List<FailureFPY> FailsFilteredByLine = _context.FailuresFPY
-                .Where(f => f.DATE >= fromDate && f.DATE <= toDate
-                    && stations.Select(s => s.Name).Contains(f.NAME)
-                    && uniqueModels.Select(m => m.Name_Model).Contains(f.MATERIAL))
-                .ToList();
-
-            result = FailsFilteredByLine.Select(p => new FailureFPY
-            {
-                ID = p.ID,
-                SerialNumber = p.SerialNumber,
-                AUFTR = p.AUFTR,
-                STATE = p.STATE,
-                DATE = p.DATE,
-                MATERIAL = p.MATERIAL,
-                NAME = p.NAME,
-                VAR = p.VAR,
-                IDTYPE = p.IDTYPE,
-                BEZ = p.BEZ,
-            }).ToList();
 
             return result;
         }
 
-        //--------------------------------Arbol------------------//
-
-
         public async Task<Dictionary<string, List<object>>> GetFamilyTree(int FamilyID)
         {
-            var family = await _context.FamiliesFPY.FirstOrDefaultAsync(f => f.Id == FamilyID);
-
-            if (family == null)
-            {
-                return null;
-            }
-
-            var lines = await _context.LinesFPY.Where(f => f.FamilyId == family.Id).ToListAsync();
-
-            List<ProcessFPY> processes = new List<ProcessFPY>();
-            foreach (LineFPY line in lines)
-            {
-                processes.AddRange(_context.ProcessesFPY.Where(f => f.LineID == line.Id).ToList());
-            }
-
-            List<StationFPY> stations = new List<StationFPY>();
-            foreach (ProcessFPY proces in processes)
-            {
-                stations.AddRange(_context.StationsFPY.Where(w => w.ProcessID == proces.Id).ToList());
-            }
-
-            var treeLines = new Dictionary<string, List<object>>();
-            foreach (LineFPY line in lines)
-            {
-                var treeProcesses = new Dictionary<string, List<object>>();
-                foreach (ProcessFPY process in processes.Where(w => w.LineID == line.Id))
-                {
-                    var treeStations = new List<object>();
-                    foreach (StationFPY station in stations.Where(w => w.ProcessID == process.Id))
-                    {
-                        treeStations.Add(station.Name);
-                    }
-                    treeProcesses.Add(process.Name, treeStations);
-                }
-                treeLines.Add(line.Name, new List<object>() { treeProcesses });
-            }
-
             var treesFPY = new Dictionary<string, List<object>>();
 
-            // Agregar la información de la familia
-            treesFPY.Add(family.Name, new List<object>() { treeLines });
+            var family = await _context.FamiliesFPY
+                .Where(f => f.Id == FamilyID)
+                .Include(f => f.LinesFPY)
+                    .ThenInclude(l => l.ProcessesFPY)
+                        .ThenInclude(p => p.StationsFPY)
+                .FirstOrDefaultAsync();
 
+            if (family != null)
+            {
+                var treeLines = new Dictionary<string, List<object>>();
+                foreach (LineFPY line in family.LinesFPY)
+                {
+                    var treeProcesses = new Dictionary<string, List<StationFPY>>();
+                    foreach (ProcessFPY process in line.ProcessesFPY)
+                    {
+                        var treeStations = new List<StationFPY>();
+                        foreach (StationFPY station in process.StationsFPY)
+                        {
+                            treeStations.Add(station);
+                        }
+                        treeProcesses.Add(process.Name, treeStations);
+                    }
+                    treeLines.Add(line.Name, new List<object>() { treeProcesses });
+                }
+
+                treesFPY.Add(family.Name, new List<object>() { treeLines });
+            }
             return treesFPY;
         }
-
-}
+    }
 }

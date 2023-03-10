@@ -416,43 +416,6 @@ namespace analysistools.api.Helpers
             return result;
         }
 
-        public static List<PRODUCEDMAX> DataTableToProducedMAX(DataTable data)
-        {
-
-            List<PRODUCEDMAX> result = new List<PRODUCEDMAX>();
-            foreach (DataRow row in data.Rows)
-            {
-                try
-                {
-                    string product_definition = row["PRODUCT_DEFINITION"].ToString();
-                    string dateFROMDATE = row["START_DATE"].ToString();
-                    string dateTODATE = row["END_DATE"].ToString();
-                    string sub_device = row["SUB_DEVICE"].ToString();
-                    DateTime start_date = DateTime.ParseExact(dateFROMDATE, "dd-MMM-yyyy HH:mm:ss", null);
-                    DateTime end_date = DateTime.ParseExact(dateTODATE, "dd-MMM-yyyy HH:mm:ss", null);
-                    int TOTAL_PASS = int.Parse(row["TOTAL_PASS"].ToString());
-                    int TOTAL_FAIL = int.Parse(row["TOTAL_FAIL"].ToString());
-                    int TOTAL = int.Parse(row["TOTAL"].ToString());
-                    double FPY = double.Parse(row["FPY"].ToString());
-                    
-                    result.Add(new PRODUCEDMAX()
-                    {
-                        PRODUCT_DEFINITION= product_definition,
-                        SUB_DEVICE =sub_device,
-                        START_DATE=start_date,
-                        END_DATE=end_date,
-                        TOTAL_PASS=TOTAL_PASS,
-                        TOTAL_FAIL=TOTAL_FAIL,
-                        TOTAL=TOTAL,
-                        FPY = FPY,
-                    });
-                }
-
-                catch (Exception) { }
-            }
-            return result;
-        }
-
         public static List<ProducedRAWFPY> DataTableToProducedRAW(DataTable data)
         {
 
