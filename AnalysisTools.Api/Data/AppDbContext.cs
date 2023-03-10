@@ -30,6 +30,8 @@ namespace analysistools.api.Data
 
         //-----------------FPY-------------------//
         public DbSet<ProducedAndFilteredFPY> ProducedAndFilteredFPYs { get; set; }
+
+        public DbSet<PRODUCEDMAX> PRODUCEDMAXes { get; set; }
         public DbSet<ProducedRAWFPY> ProducedRAWFPY { get; set; }
         public DbSet<FailureFPY> FailuresFPY { get; set; }
 
@@ -146,6 +148,13 @@ namespace analysistools.api.Data
             {
                 entity.HasKey(e => e.ID);
             });
+
+            modelBuilder.Entity<PRODUCEDMAX>().ToTable("FPY09PRODUCEDMAX");
+            modelBuilder.Entity<PRODUCEDMAX>(entity =>
+            {
+                entity.HasKey(e => e.ID);
+            });
+
             modelBuilder.Entity<ProducedRAWFPY>().ToTable("FPY02ProducedRAW");
             modelBuilder.Entity<ProducedRAWFPY>(entity =>
             {

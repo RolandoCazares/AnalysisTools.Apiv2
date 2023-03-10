@@ -17,6 +17,7 @@ namespace analysistools.api.Contracts
         List<Scrn2020Details> GetSCRN2020process(DateTime fromDate, DateTime toDate, string Station, string IdType);
         List<Failure> GetFailuresIDR(DateTime fromDate, DateTime toDate);
         List<ProducedUnitsDTO> GetAllProducedIDR(string FamilyICTs, int FamilyID, DateTime FromDate, DateTime ToDate);
+        List<PRODUCEDMAX> GetProducedMAX(DateTime FromDate, DateTime ToDate);
         List<ProducedAndFilteredFPY> GetProducedAndFiltereds(DateTime FromDate, DateTime ToDate);
         List<ProducedRAWFPY> GetProducedRAWFPYs(DateTime FromDate, DateTime ToDate);
         List<FailureFPY> GetRAW_Fails(DateTime FromDate, DateTime ToDate);

@@ -293,6 +293,21 @@ namespace analysistools.api.Repositories
             return Result;
         }
 
+        public List<PRODUCEDMAX> GetProducedMAX(DateTime FromDate, DateTime ToDate)
+        {
+
+            List<PRODUCEDMAX> Result = new List<PRODUCEDMAX>();
+            try
+            {
+                    string DataQueryProducedFiltered = MesQueryFabric.QueryForProducedMax(FromDate, ToDate);
+                    DataTable queryResult = dbContext.RunQuery(DataQueryProducedFiltered);
+                    List<PRODUCEDMAX> filteredData = DataTableHelper.DataTableToProducedMAX(queryResult);
+                    Result.AddRange(filteredData);
+            }
+            catch (Exception) { }
+            return Result;
+        }
+
         public List<ProducedRAWFPY> GetProducedRAWFPYs(DateTime FromDate, DateTime ToDate)
         {
 
