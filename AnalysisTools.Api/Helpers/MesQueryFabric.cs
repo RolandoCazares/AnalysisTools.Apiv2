@@ -129,6 +129,30 @@ namespace analysistools.api.Helpers
             return $"SELECT AL1.RUNID, AL2.PDK_AUFTR, AL1.RUN_STATE, AL1.RUN_DATE, AL3.PDK_MATERIAL, AL5.BMT_NAME, AL4.PRP_VAR, AL1.RUNID_TYPE FROM EVAPROD.PD_LFD_RUN AL1, EVAPROD.PD_LFD_AUF AL2, EVAPROD.PD_LFD_MAT AL3, EVAPROD.PD_STM_PRP AL4, EVAPROD.PD_LFD_BMN AL5 WHERE (AL5.BMT_DAT_ID=AL1.BMT_DAT_ID AND AL2.PRD_SPC_SID=AL1.PRD_SPC_SID AND AL3.PRD_MAT_SID=AL1.PRD_MAT_SID AND AL1.PRP_DATE_ID=AL4.PRP_DATE_ID)  AND (AL1.RUNID_TYPE LIKE '{product}' AND AL1.RUN_DATE BETWEEN to_date '{fromTestDateString}', 'dd-mon-yyyy hh24:mi:ss') AND to_date('{toTestDateString}', 'dd-mon-yyyy hh24:mi:ss'))";
         }
 
+        public static string QueryForProducedMAXSINAGRUPAR(DateTime FromDate, DateTime ToDate)
+        {
+            double diffDays = (ToDate - FromDate).TotalDays;
+            if (!(diffDays > 0 && diffDays <= 1)) throw new ArgumentException("Solo se permite maximo 1 dia");
+
+            string fromDate = FromDate.ToString("dd-MMM-yyyy HH:mm:ss");
+            string toDate = ToDate.ToString("dd-MMM-yyyy HH:mm:ss");
+            return $"SELECT j.PRODUCT_DEFINITION, s.SUB_DEVICE, s.DST_EQUIPMENT, CASE QTY WHEN 1 THEN 1 END AS PASS, CASE s.QTY_FAIL WHEN 1 THEN 1 END AS FAIL, s.UNIT_ID_IN, s.UNIT_ID_IN_TYPE, '{fromDate}' as START_DATE, '{toDate}' as END_DATE FROM T_WIP_SUBSET_LOG s JOIN T_WIP_JOB j ON s.SRC_JOB = j.JOB WHERE s.SRC_JOB NOT LIKE 'T_golden%' AND s.CREATED BETWEEN TO_DATE('{fromDate}','DD-MM-YYYY HH24:MI:SS') AND TO_DATE('{toDate}','DD-MM-YYYY HH24:MI:SS') ORDER BY START_DATE, END_DATE, j.PRODUCT_DEFINITION";
+            //return $"SELECT PRODUCT_DEFINITION, SUB_DEVICE, ROUND((TOTAL_PASS/NULLIF(TOTAL_PASS+TOTAL_FAIL,0)),4)*100 AS FPY, ROUND(TOTAL_PASS+TOTAL_FAIL,1) AS TOTAL, TOTAL_PASS, TOTAL_FAIL, '{fromDate}' as START_DATE, '{toDate}' as END_DATE FROM (SELECT j.PRODUCT_DEFINITION, s.SUB_DEVICE, COUNT(CASE QTY WHEN 1 THEN 1 END) AS TOTAL_PASS, COUNT(CASE QTY_FAIL WHEN 1 THEN 1 END) AS TOTAL_FAIL FROM T_WIP_SUBSET_LOG s JOIN T_WIP_JOB j ON s.SRC_JOB = j.JOB WHERE s.SRC_JOB NOT LIKE 'T_golden%' AND s.CREATED BETWEEN TO_DATE('{fromDate}','DD-MM-YYYY HH24:MI:SS') AND TO_DATE('{toDate}','DD-MM-YYYY HH24:MI:SS') GROUP BY j.PRODUCT_DEFINITION, s.SUB_DEVICE) ORDER BY PRODUCT_DEFINITION, FPY";
+
+        }
+
+        public static string QueryForProducedMax(DateTime FromDate, DateTime ToDate)
+        {
+            double diffDays = (ToDate - FromDate).TotalDays;
+            if (!(diffDays > 0 && diffDays <= 1)) throw new ArgumentException("Solo se permite maximo 1 dia");
+
+            string fromDate = FromDate.ToString("dd-MMM-yyyy HH:mm:ss");
+            string toDate = ToDate.ToString("dd-MMM-yyyy HH:mm:ss");
+            return $"SELECT PRODUCT_DEFINITION, SUB_DEVICE, DST_EQUIPMENT, ROUND((TOTAL_PASS/NULLIF(TOTAL_PASS+TOTAL_FAIL,0)),4)*100 AS FPY, ROUND(TOTAL_PASS+TOTAL_FAIL,1) AS TOTAL, TOTAL_PASS, TOTAL_FAIL, '{fromDate}' as START_DATE, '{toDate}' as END_DATE FROM (SELECT j.PRODUCT_DEFINITION, s.SUB_DEVICE, s.DST_EQUIPMENT, COUNT(CASE QTY WHEN 1 THEN 1 END) AS TOTAL_PASS, COUNT(CASE QTY_FAIL WHEN 1 THEN 1 END) AS TOTAL_FAIL FROM T_WIP_SUBSET_LOG s JOIN T_WIP_JOB j ON s.SRC_JOB = j.JOB WHERE s.SRC_JOB NOT LIKE 'T_golden%' AND s.CREATED BETWEEN TO_DATE('{fromDate}','DD-MM-YYYY HH24:MI:SS') AND TO_DATE('{toDate}','DD-MM-YYYY HH24:MI:SS') GROUP BY j.PRODUCT_DEFINITION, s.SUB_DEVICE, s.DST_EQUIPMENT ) ORDER BY PRODUCT_DEFINITION, FPY";
+            //return $"SELECT PRODUCT_DEFINITION, SUB_DEVICE, ROUND((TOTAL_PASS/NULLIF(TOTAL_PASS+TOTAL_FAIL,0)),4)*100 AS FPY, ROUND(TOTAL_PASS+TOTAL_FAIL,1) AS TOTAL, TOTAL_PASS, TOTAL_FAIL, '{fromDate}' as START_DATE, '{toDate}' as END_DATE FROM (SELECT j.PRODUCT_DEFINITION, s.SUB_DEVICE, COUNT(CASE QTY WHEN 1 THEN 1 END) AS TOTAL_PASS, COUNT(CASE QTY_FAIL WHEN 1 THEN 1 END) AS TOTAL_FAIL FROM T_WIP_SUBSET_LOG s JOIN T_WIP_JOB j ON s.SRC_JOB = j.JOB WHERE s.SRC_JOB NOT LIKE 'T_golden%' AND s.CREATED BETWEEN TO_DATE('{fromDate}','DD-MM-YYYY HH24:MI:SS') AND TO_DATE('{toDate}','DD-MM-YYYY HH24:MI:SS') GROUP BY j.PRODUCT_DEFINITION, s.SUB_DEVICE) ORDER BY PRODUCT_DEFINITION, FPY";
+
+        }
+
         public static string QueryForProducedAndFilteredFPY(string Producto, DateTime FromDate, DateTime ToDate)
         {
             double diffDays = (ToDate - FromDate).TotalDays;
@@ -141,17 +165,7 @@ namespace analysistools.api.Helpers
 
         }
 
-        public static string QueryForProducedMax(DateTime FromDate, DateTime ToDate)
-        {
-            double diffDays = (ToDate - FromDate).TotalDays;
-            if (!(diffDays > 0 && diffDays <= 1)) throw new ArgumentException("Solo se permite maximo 1 dia");
-
-            string fromDate = FromDate.ToString("dd-MMM-yyyy HH:mm:ss");
-            string toDate = ToDate.ToString("dd-MMM-yyyy HH:mm:ss");
-
-            return $"SELECT PRODUCT_DEFINITION, SUB_DEVICE, ROUND((TOTAL_PASS/NULLIF(TOTAL_PASS+TOTAL_FAIL,0)),4)*100 AS FPY, ROUND(TOTAL_PASS+TOTAL_FAIL,1) AS TOTAL, TOTAL_PASS, TOTAL_FAIL, '{fromDate}' as START_DATE, '{toDate}' as END_DATE FROM (SELECT j.PRODUCT_DEFINITION, s.SUB_DEVICE, COUNT(CASE QTY WHEN 1 THEN 1 END) AS TOTAL_PASS, COUNT(CASE QTY_FAIL WHEN 1 THEN 1 END) AS TOTAL_FAIL FROM T_WIP_SUBSET_LOG s JOIN T_WIP_JOB j ON s.SRC_JOB = j.JOB WHERE s.SRC_JOB NOT LIKE 'T_golden%' AND s.CREATED BETWEEN TO_DATE('{fromDate}','DD-MM-YYYY HH24:MI:SS') AND TO_DATE('{toDate}','DD-MM-YYYY HH24:MI:SS') GROUP BY j.PRODUCT_DEFINITION, s.SUB_DEVICE) ORDER BY PRODUCT_DEFINITION, FPY";
-
-        }
+        
 
         public static string QueryForProducedRAWFPY(string Producto, DateTime FromDate, DateTime ToDate)
         {

@@ -17,9 +17,10 @@ namespace analysistools.api.Helpers
             _context = context;
         }
 
-        public async Task<List<ProducedAndFilteredFPY>> FilterProducedByFamilyy(int FamilyID, DateTime fromDate, DateTime toDate)
+        public async Task<List<PRODUCEDMAX>> FilterProducedByFamilyy(int FamilyID, DateTime fromDate, DateTime toDate)
         {
-            List<ProducedAndFilteredFPY> result = new List<ProducedAndFilteredFPY>();
+            //List<ProducedAndFilteredFPY> result = new List<ProducedAndFilteredFPY>();
+            List<PRODUCEDMAX> result = new List<PRODUCEDMAX>();
 
             List<FamilyFPY> family = await _context.FamiliesFPY.Where(f => f.Id == FamilyID).ToListAsync();
 
@@ -41,40 +42,21 @@ namespace analysistools.api.Helpers
                 stations.AddRange(_context.StationsFPY.Where(w => w.ProcessID == proces.Id).ToList());
             }
 
-            List<ModelFPY> Models = new List<ModelFPY>();
-            foreach (StationFPY station in stations)
-            {
-                Models.AddRange(_context.ModelsFPY.Where(w => w.StationID == station.Id).ToList());
-            }
-
-            List<string> uniqueModelNames = _context.ModelsFPY
-            .Where(m => stations.Select(s => s.Id).Contains(m.StationID))
-            .Select(m => m.Name_Model)
-            .Distinct()
-            .ToList();
-
-            List<ModelFPY> uniqueModels = _context.ModelsFPY
-                .Where(m => uniqueModelNames.Contains(m.Name_Model))
-                .ToList();
 
             fromDate = fromDate.AddDays(-1);
-            // Obtener producciones filtradas por línea
-            List<ProducedAndFilteredFPY> ProducedFilteredByLine = _context.ProducedAndFilteredFPYs
-                .Where(f => f.Date >= fromDate && f.Date <= toDate
-                    && stations.Select(s => s.Name).Contains(f.Name)
-                    && uniqueModels.Select(m => m.Name_Model).Contains(f.Material))
+
+            //List<ProducedAndFilteredFPY> ProducedFilteredByLine = _context.ProducedAndFilteredFPYs
+            //    .Where(f => f.Date >= fromDate && f.Date <= toDate
+            //        && stations.Select(s => s.Name).Contains(f.Name)
+            //        && uniqueModels.Select(m => m.Name_Model).Contains(f.Material))
+            //    .ToList();
+
+            List<PRODUCEDMAX> ProducedFilteredByLine = _context.PRODUCEDMAXes
+                .Where(f => f.START_DATE >= fromDate && f.END_DATE <= toDate
+                    && stations.Select(s => s.Name).Contains(f.SUB_DEVICE))
                 .ToList();
 
-            result = ProducedFilteredByLine.Select(p => new ProducedAndFilteredFPY
-            {
-                ID = p.ID,
-                Material = p.Material,
-                Name = p.Name,
-                Var = p.Var,
-                IdType = p.IdType,
-                Date = p.Date,
-                Amount = p.Amount,
-            }).ToList();
+            result.AddRange(ProducedFilteredByLine);
             return result;
         }
 

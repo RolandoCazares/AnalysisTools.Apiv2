@@ -274,19 +274,10 @@ namespace analysistools.api.Repositories
             List<ProducedAndFilteredFPY> Result = new List<ProducedAndFilteredFPY>();
             try
             {
-                List<FamilyFPY> families = _context.FamiliesFPY.ToList();
-                foreach (FamilyFPY family in families)
-                {
-                    string Product = family.IdType;
-                    string DataQueryProducedFiltered = MesQueryFabric.QueryForProducedAndFilteredFPY(Product, FromDate, ToDate);
+                    string DataQueryProducedFiltered = MesQueryFabric.QueryForProducedMAXSINAGRUPAR(FromDate, ToDate);
                     DataTable queryResult = dbContext.RunQuery(DataQueryProducedFiltered);
                     List<ProducedAndFilteredFPY> filteredData = DataTableHelper.DataTableToProducedAndFilter(queryResult);
-                        //.GroupBy(d => d.SerialNumber)
-                        //.Select(g => g.OrderBy(d => d.DATE).First())
-                        //.ToList();
                     Result.AddRange(filteredData);
-                }
-
 
             }
             catch (Exception) { }

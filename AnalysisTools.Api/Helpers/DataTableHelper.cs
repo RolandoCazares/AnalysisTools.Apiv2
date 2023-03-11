@@ -13,6 +13,7 @@ using analysistools.api.Models.FPY;
 using System.Security.Policy;
 using System.Xml.Linq;
 using System;
+using NuGet.Configuration;
 
 namespace analysistools.api.Helpers
 {
@@ -398,19 +399,30 @@ namespace analysistools.api.Helpers
             {
                 try
                 {
-                    string dateTimeAsString = row["Fecha"].ToString();
-                    ProducedAndFilteredFPY rawData = new ProducedAndFilteredFPY
-                    {
-                        Material = row["MATERIAL"].ToString(),
-                        Name = row["NAME"].ToString(),
-                        Var = row["VAR"].ToString(),
-                        IdType = row["IDTYPE"].ToString(),
-                        Date = DateTime.Parse(dateTimeAsString),
-                        Amount = int.Parse(row["Cantidad"].ToString())
-                    };
-                    result.Add(rawData);
-                }
+                    string UNIT_ID_IN = row["UNIT_ID_IN"].ToString();
+                    int PASS = int.Parse(row["PASS"].ToString());
+                    string PRODUCT_DEFINITION = row["PRODUCT_DEFINITION"].ToString();
+                    string SUB_DEVICE = row["SUB_DEVICE"].ToString();
+                    string DST_EQUIPMENT = row["DST_EQUIPMENT"].ToString();
+                    string UNIT_ID_IN_TYPE = row["UNIT_ID_IN_TYPE"].ToString();
+                    string dateFROMDATE = row["START_DATE"].ToString();
+                    string dateTODATE = row["END_DATE"].ToString();
+                    DateTime start_date = DateTime.ParseExact(dateFROMDATE, "dd-MMM-yyyy HH:mm:ss", null);
+                    DateTime end_date = DateTime.ParseExact(dateTODATE, "dd-MMM-yyyy HH:mm:ss", null);
 
+                    result.Add(new ProducedAndFilteredFPY()
+                    {
+                        UNIT_ID_IN = UNIT_ID_IN,
+                        PASS = PASS,
+
+                    PRODUCT_DEFINITION = PRODUCT_DEFINITION,
+                        SUB_DEVICE = SUB_DEVICE,
+                        DST_EQUIPMENT = DST_EQUIPMENT,
+                        UNIT_ID_IN_TYPE = UNIT_ID_IN_TYPE,
+                        START_DATE = start_date,
+                        END_DATE = end_date,
+                    });
+                }
                 catch (Exception) { }
             }
             return result;
@@ -428,6 +440,7 @@ namespace analysistools.api.Helpers
                     string dateFROMDATE = row["START_DATE"].ToString();
                     string dateTODATE = row["END_DATE"].ToString();
                     string sub_device = row["SUB_DEVICE"].ToString();
+                    string dst_equipment = row["DST_EQUIPMENT"].ToString();
                     DateTime start_date = DateTime.ParseExact(dateFROMDATE, "dd-MMM-yyyy HH:mm:ss", null);
                     DateTime end_date = DateTime.ParseExact(dateTODATE, "dd-MMM-yyyy HH:mm:ss", null);
                     int TOTAL_PASS = int.Parse(row["TOTAL_PASS"].ToString());
@@ -439,6 +452,7 @@ namespace analysistools.api.Helpers
                     {
                         PRODUCT_DEFINITION= product_definition,
                         SUB_DEVICE =sub_device,
+                        PROCESS= dst_equipment,
                         START_DATE=start_date,
                         END_DATE=end_date,
                         TOTAL_PASS=TOTAL_PASS,

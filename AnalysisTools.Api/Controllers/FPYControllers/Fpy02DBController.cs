@@ -20,18 +20,30 @@ namespace analysistools.api.Controllers.FPYControllers
             _accomodate = accomodate;
         }
 
-        // GET: /api/Fpy02DB/ProducedByFamily/1/01-02-2023/15-02-2023
         [HttpGet("ProducedByFamily/{FamilyId}/{fromDate}/{toDate}")]
-        public async Task<ActionResult<List<ProducedAndFilteredFPY>>> GetProducedByFamily(int FamilyId, string fromDate, string toDate)
+        public async Task<ActionResult<List<PRODUCEDMAX>>> GetProducedByFamily(int FamilyId, string fromDate, string toDate)
         {
             DateTime FromDate = DateTime.ParseExact(fromDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
             DateTime ToDate = DateTime.ParseExact(toDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
 
             var ProducedAndFilter = await Task.Run(() => _filter.FilterProducedByFamilyy(FamilyId, FromDate, ToDate));
-            var FailuresAndFilter = await Task.Run(() => _filter.FilterFailsByFamily(FamilyId, FromDate, ToDate)); 
+            var FailuresAndFilter = await Task.Run(() => _filter.FilterFailsByFamily(FamilyId, FromDate, ToDate));
             var Acomodar = await Task.Run(() => _accomodate.DataTableAccommodate(ProducedAndFilter, FailuresAndFilter));
             return Ok(Acomodar);
         }
+
+        // GET: /api/Fpy02DB/ProducedByFamily/1/01-02-2023/15-02-2023
+        //[HttpGet("ProducedByFamily/{FamilyId}/{fromDate}/{toDate}")]
+        //public async Task<ActionResult<List<ProducedAndFilteredFPY>>> GetProducedByFamily(int FamilyId, string fromDate, string toDate)
+        //{
+        //    DateTime FromDate = DateTime.ParseExact(fromDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
+        //    DateTime ToDate = DateTime.ParseExact(toDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
+
+        //    var ProducedAndFilter = await Task.Run(() => _filter.FilterProducedByFamilyy(FamilyId, FromDate, ToDate));
+        //    var FailuresAndFilter = await Task.Run(() => _filter.FilterFailsByFamily(FamilyId, FromDate, ToDate)); 
+        //    var Acomodar = await Task.Run(() => _accomodate.DataTableAccommodate(ProducedAndFilter, FailuresAndFilter));
+        //    return Ok(Acomodar);
+        //}
 
         ////localhost:7202/api/Fpy02DB/ProducedByLine/1/01-02-2023/08-02-2023
         //// GET: ProducedByLine/LineID/dd-MM-yyyy/dd-MM-yyyy

@@ -9,6 +9,7 @@ namespace analysistools.api.Models.FPY
         [Required]
         public string Name { get; set; }
         [Required]
+        public string ProcessName { get; set; }
         public int ProcessID { get; set; }
         [JsonIgnore]
         public ProcessFPY ProcessFPY { get; set; }

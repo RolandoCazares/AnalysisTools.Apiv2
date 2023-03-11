@@ -7,7 +7,8 @@ namespace analysistools.api.Contracts
     {
 
         //-----------------------------ProducedFPY-------------------------//
-        Task<List<ProducedAndFilteredFPY>> FilterProducedByFamilyy(int FamilyID, DateTime fromDate, DateTime toDate);
+        //Task<List<ProducedAndFilteredFPY>> FilterProducedByFamilyy(int FamilyID, DateTime fromDate, DateTime toDate);
+        Task<List<PRODUCEDMAX>> FilterProducedByFamilyy(int FamilyID, DateTime fromDate, DateTime toDate);
         //Task<List<ProducedAndFilteredFPY>> FilterProducedByLine(int LineID, DateTime fromDate, DateTime toDate);
         //Task<List<ProducedAndFilteredFPY>> FilterProducedByProcess(int ProcessID, DateTime fromDate, DateTime toDate);
         //Task<List<ProducedAndFilteredFPY>> FilterProducedByStation(int StationID, DateTime fromDate, DateTime toDate);

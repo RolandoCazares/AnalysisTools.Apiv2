@@ -6,6 +6,6 @@ namespace analysistools.api.Contracts
 {
     public interface IAccommodate
     {
-        Task<List<Response>> DataTableAccommodate(List<ProducedAndFilteredFPY> producedAndFilteredList, List<FailureFPY> FailuresAndFilter);
+        Task<List<Response>> DataTableAccommodate(List<PRODUCEDMAX> producedAndFilteredList, List<FailureFPY> FailuresAndFilter);
     }
 }

@@ -4,9 +4,13 @@
     {
         public int ID { get; set; }
 
+        
+
         public string PRODUCT_DEFINITION { get; set; }
 
         public string SUB_DEVICE { get; set; }
+
+        public string PROCESS { get; set; }
 
         public DateTime START_DATE { get; set; }
 
