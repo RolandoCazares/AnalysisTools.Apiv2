@@ -17,48 +17,48 @@ namespace analysistools.api.Helpers
             _context = context;
         }
 
-        public async Task<List<PRODUCEDMAX>> FilterProducedByFamilyy(int FamilyID, DateTime fromDate, DateTime toDate)
-        {
-            //List<ProducedAndFilteredFPY> result = new List<ProducedAndFilteredFPY>();
-            List<PRODUCEDMAX> result = new List<PRODUCEDMAX>();
+        //public async Task<List<PRODUCEDMAX>> FilterProducedByFamilyy(int FamilyID, DateTime fromDate, DateTime toDate)
+        //{
+        //    //List<ProducedAndFilteredFPY> result = new List<ProducedAndFilteredFPY>();
+        //    List<PRODUCEDMAX> result = new List<PRODUCEDMAX>();
 
-            List<FamilyFPY> family = await _context.FamiliesFPY.Where(f => f.Id == FamilyID).ToListAsync();
+        //    List<FamilyFPY> family = await _context.FamiliesFPY.Where(f => f.Id == FamilyID).ToListAsync();
 
-            List<LineFPY> lines = new List<LineFPY>();
-            foreach (FamilyFPY fami in family)
-            {
-                lines.AddRange(_context.LinesFPY.Where(f => f.FamilyId == fami.Id).ToList());
-            }
+        //    List<LineFPY> lines = new List<LineFPY>();
+        //    foreach (FamilyFPY fami in family)
+        //    {
+        //        lines.AddRange(_context.LinesFPY.Where(f => f.FamilyId == fami.Id).ToList());
+        //    }
 
-            List<ProcessFPY> processes = new List<ProcessFPY>();
-            foreach (LineFPY line in lines)
-            {
-                processes.AddRange(_context.ProcessesFPY.Where(f => f.LineID == line.Id).ToList());
-            }
+        //    List<ProcessFPY> processes = new List<ProcessFPY>();
+        //    foreach (LineFPY line in lines)
+        //    {
+        //        processes.AddRange(_context.ProcessesFPY.Where(f => f.LineID == line.Id).ToList());
+        //    }
 
-            List<StationFPY> stations = new List<StationFPY>();
-            foreach (ProcessFPY proces in processes)
-            {
-                stations.AddRange(_context.StationsFPY.Where(w => w.ProcessID == proces.Id).ToList());
-            }
+        //    List<StationFPY> stations = new List<StationFPY>();
+        //    foreach (ProcessFPY proces in processes)
+        //    {
+        //        stations.AddRange(_context.StationsFPY.Where(w => w.ProcessID == proces.Id).ToList());
+        //    }
 
 
-            fromDate = fromDate.AddDays(-1);
+        //    fromDate = fromDate.AddDays(-1);
 
-            //List<ProducedAndFilteredFPY> ProducedFilteredByLine = _context.ProducedAndFilteredFPYs
-            //    .Where(f => f.Date >= fromDate && f.Date <= toDate
-            //        && stations.Select(s => s.Name).Contains(f.Name)
-            //        && uniqueModels.Select(m => m.Name_Model).Contains(f.Material))
-            //    .ToList();
+        //    //List<ProducedAndFilteredFPY> ProducedFilteredByLine = _context.ProducedAndFilteredFPYs
+        //    //    .Where(f => f.Date >= fromDate && f.Date <= toDate
+        //    //        && stations.Select(s => s.Name).Contains(f.Name)
+        //    //        && uniqueModels.Select(m => m.Name_Model).Contains(f.Material))
+        //    //    .ToList();
 
-            List<PRODUCEDMAX> ProducedFilteredByLine = _context.PRODUCEDMAXes
-                .Where(f => f.START_DATE >= fromDate && f.END_DATE <= toDate
-                    && stations.Select(s => s.Name).Contains(f.SUB_DEVICE))
-                .ToList();
+        //    List<PRODUCEDMAX> ProducedFilteredByLine = _context.PRODUCEDMAXes
+        //        .Where(f => f.START_DATE >= fromDate && f.END_DATE <= toDate
+        //            && stations.Select(s => s.Name).Contains(f.SUB_DEVICE))
+        //        .ToList();
 
-            result.AddRange(ProducedFilteredByLine);
-            return result;
-        }
+        //    result.AddRange(ProducedFilteredByLine);
+        //    return result;
+        //}
 
         public async Task<List<FailureFPY>> FilterFailsByFamily(int FamilyID, DateTime fromDate, DateTime toDate)
         {

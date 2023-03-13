@@ -11,11 +11,15 @@ namespace analysistools.api.Controllers.FPYControllers
     [ApiController]
     public class Fpy02DBController : ControllerBase
     {
+        private readonly IFilterProducedByFamily _filterProducedByFamily;
+        private readonly IFilterFailsByFamily _filterFailsByFamily;
         private readonly IFilters _filter;
         private readonly IAccommodate _accomodate;
 
-        public Fpy02DBController(IFilters filter, IAccommodate accomodate)
+        public Fpy02DBController(IFilters filter, IAccommodate accomodate, IFilterProducedByFamily filterProducedByFamily, IFilterFailsByFamily filterFailsByFamily)
         {
+            _filterProducedByFamily = filterProducedByFamily;
+            _filterFailsByFamily = filterFailsByFamily;
             _filter = filter;
             _accomodate = accomodate;
         }
@@ -26,8 +30,8 @@ namespace analysistools.api.Controllers.FPYControllers
             DateTime FromDate = DateTime.ParseExact(fromDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
             DateTime ToDate = DateTime.ParseExact(toDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
 
-            var ProducedAndFilter = await Task.Run(() => _filter.FilterProducedByFamilyy(FamilyId, FromDate, ToDate));
-            var FailuresAndFilter = await Task.Run(() => _filter.FilterFailsByFamily(FamilyId, FromDate, ToDate));
+            var ProducedAndFilter = await Task.Run(() => _filterProducedByFamily.FilterProducedByFamily(FamilyId, FromDate, ToDate));
+            var FailuresAndFilter = await Task.Run(() => _filterFailsByFamily.FailuresByFamily(FamilyId, FromDate, ToDate));
             var Acomodar = await Task.Run(() => _accomodate.DataTableAccommodate(ProducedAndFilter, FailuresAndFilter));
             return Ok(Acomodar);
         }

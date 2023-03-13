@@ -41,6 +41,8 @@ builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IComponentsService, ComponentsService>();
 builder.Services.AddScoped<IFilters, Filters>();
+builder.Services.AddScoped<IFilterProducedByFamily, FiltersProducedByFamily>();
+builder.Services.AddScoped<IFilterFailsByFamily, FilterFailsByFamily>();
 builder.Services.AddScoped<IAccommodate, Accommodate>();
 
 builder.Services.AddControllers();

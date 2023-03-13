@@ -1,10 +1,10 @@
-﻿using analysistools.api.Models.ProductionTests;
+﻿
 using System.Data;
 using analysistools.api.Models.FPY;
 using analysistools.api.Models.FPY.HELPERS;
 using analysistools.api.Contracts;
 using analysistools.api.Data;
-using Microsoft.EntityFrameworkCore;
+using System.Collections.Specialized;
 
 namespace analysistools.api.Helpers
 {
@@ -30,6 +30,7 @@ namespace analysistools.api.Helpers
                     .GroupBy(x => x.PROCESS)
                     .ToDictionary(g => g.Key, g => g.Sum(x => x.TOTAL_PASS));
 
+
                 //------------Falladas-------------//
                 Dictionary<string, int> totalFailuresByProcess = producedAndFilteredList
                 .GroupBy(x => x.PROCESS)
@@ -43,30 +44,41 @@ namespace analysistools.api.Helpers
 
                 //-------FPY porcentaje por proceso-------//
 
-                Dictionary<string, double> FPYByProcess = producedAndFilteredList
-                .GroupBy(x => x.PROCESS)
-                .ToDictionary(g => g.Key, g => g.Sum(x => x.FPY) / g.Count());
+                Dictionary<string, double> FPYbyProcess = new Dictionary<string, double>();
 
+                foreach (string var in totalProducedByProcess.Keys)
+                {
+                    if (totalFailuresByProcess.ContainsKey(var))
+                    {
+                        double fpy = (double)(totalProducedByProcess[var] - totalFailuresByProcess[var]) / totalProducedByProcess[var] * 100;
+                        FPYbyProcess.Add(var, fpy);
+                    }
+                    else
+                    {
+                        FPYbyProcess.Add(var, 100);
+                    }
+                }
                 //------------------Reporte tabla FPY------------------//
 
                 List<ReportFPY> ReportFPYbyProcess = new List<ReportFPY>();
 
                 foreach (string var in totalProducedByProcess.Keys)
                 {
-                    if (totalFailuresByProcess.ContainsKey(var) && FPYByProcess.ContainsKey(var) && totalsByProcess.ContainsKey(var))
+                    if (totalFailuresByProcess.ContainsKey(var) && FPYbyProcess.ContainsKey(var) && totalsByProcess.ContainsKey(var))
                     {
+                        double fpy = FPYbyProcess[var];
                         ReportFPY data = new ReportFPY
                         {
                             Var = var,
                             TotalProduced = totalProducedByProcess[var],
                             TotalFailures = totalFailuresByProcess[var],
                             Total = totalsByProcess[var],
-                            FPY = FPYByProcess[var],
+                            FPY = fpy,
                         };
+
                         ReportFPYbyProcess.Add(data);
                     }
                 }
-                ReportFPYbyProcess = ReportFPYbyProcess.OrderBy(x => x.Var).ToList();
 
                 #endregion
 
@@ -85,13 +97,37 @@ namespace analysistools.api.Helpers
                 //-------------------Totals--------------------//
                 Dictionary<(string, string), int> totalsByProcessAndStation = producedAndFilteredList
                 .GroupBy(x => (x.PROCESS, x.SUB_DEVICE))
-                .ToDictionary(g => g.Key, g => g.Sum(x => x.TOTAL_FAIL));
+                .ToDictionary(g => g.Key, g => g.Sum(x => x.TOTAL));
 
                 //-------Calcular el porcentaje de FPY por proceso y estación-----//
 
-                Dictionary<(string, string), double> FPYByProcessAndStation = producedAndFilteredList
-                .GroupBy(x => (x.PROCESS, x.SUB_DEVICE))
-                .ToDictionary(g => g.Key, g => g.Sum(x => x.FPY) / g.Count());
+                Dictionary<(string, string), double> FPYbyProcessAndStation = new Dictionary<(string, string), double>();
+                List<Dictionary<(string, string), double>> TotalFPYbyProcessAndStation = new List<Dictionary<(string, string), double>>();
+
+                foreach ((string var, string name) in totalProducedByProcessAndStation.Keys)
+                {
+                    if (totalFailuresByProcessAndStation.ContainsKey((var, name)))
+                    {
+                        double totalProduced = totalProducedByProcessAndStation[(var, name)];
+                        double totalFailures = totalFailuresByProcessAndStation[(var, name)];
+                        if (totalProduced == totalFailures)
+                        {
+                            FPYbyProcessAndStation.Add((var, name), 50);
+                        }
+                        else
+                        {
+                            double fpy = (double)(totalProduced - totalFailures) / totalProduced * 100;
+                            FPYbyProcessAndStation.Add((var, name), fpy);
+                        }
+                    }
+                    else
+                    {
+                        FPYbyProcessAndStation.Add((var, name), 100);
+                    }
+                }
+
+                TotalFPYbyProcessAndStation.Add(FPYbyProcessAndStation);
+
 
                 //-------------Genera reporte de FPY por proceso y estacion-----------//
 
@@ -99,7 +135,7 @@ namespace analysistools.api.Helpers
 
                 foreach ((string var, string name) in totalProducedByProcessAndStation.Keys)
                 {
-                    if (totalFailuresByProcessAndStation.ContainsKey((var, name)) && FPYByProcessAndStation.ContainsKey((var, name)) && totalsByProcessAndStation.ContainsKey((var, name)))
+                    if (totalFailuresByProcessAndStation.ContainsKey((var, name)) && FPYbyProcessAndStation.ContainsKey((var, name)) && totalsByProcessAndStation.ContainsKey((var, name)))
                     {
                         ReportFPYByProcessAndStation data = new ReportFPYByProcessAndStation
                         {
@@ -108,7 +144,7 @@ namespace analysistools.api.Helpers
                             TotalProduced = totalProducedByProcessAndStation[(var, name)],
                             TotalFailures = totalFailuresByProcessAndStation[(var, name)],
                             Total = totalsByProcessAndStation[(var, name)],
-                            FPY = FPYByProcessAndStation[(var, name)],
+                            FPY = FPYbyProcessAndStation[(var, name)],
                         };
                         ReportFPYbyProcessAndStation.Add(data);
                     }
@@ -120,17 +156,17 @@ namespace analysistools.api.Helpers
 
                 //-------------------Produced--------------------//
                 Dictionary<(string, string), int> totalProducedByProcessAndModel = producedAndFilteredList
-                .GroupBy(x => (x.SUB_DEVICE, x.PRODUCT_DEFINITION))
+                .GroupBy(x => (x.PROCESS, x.PRODUCT_DEFINITION))
                 .ToDictionary(g => g.Key, g => g.Sum(x => x.TOTAL_PASS));
 
                 //-------------------Failures--------------------//
                 Dictionary<(string, string), int> totalFailuresByProcessAndModel = producedAndFilteredList
-                .GroupBy(x => (x.SUB_DEVICE, x.PRODUCT_DEFINITION))
+                .GroupBy(x => (x.PROCESS, x.PRODUCT_DEFINITION))
                 .ToDictionary(g => g.Key, g => g.Sum(x => x.TOTAL_FAIL));
 
                 //-------------------Totales--------------------//
                 Dictionary<(string, string), int> totalsByProcessAndModel = producedAndFilteredList
-                .GroupBy(x => (x.SUB_DEVICE, x.PRODUCT_DEFINITION))
+                .GroupBy(x => (x.PROCESS, x.PRODUCT_DEFINITION))
                 .ToDictionary(g => g.Key, g => g.Sum(x => x.TOTAL));
 
                 //-------Calcular el porcentaje de FPY por proceso y modelo-----//
@@ -141,20 +177,49 @@ namespace analysistools.api.Helpers
 
                 //-------------Genera reporte de FPY por proceso y modelo-----------//
 
+                Dictionary<(string, string), double> FPYbyProcessAndModel = new Dictionary<(string, string), double>();
+                List<Dictionary<(string, string), double>> TotalFPYbyProcessAndModel = new List<Dictionary<(string, string), double>>();
+
+                foreach ((string var, string material) in totalProducedByProcessAndModel.Keys)
+                {
+                    if (totalFailuresByProcessAndModel.ContainsKey((var, material)))
+                    {
+                        double totalProduced = totalProducedByProcessAndModel[(var, material)];
+                        double totalFailures = totalFailuresByProcessAndModel[(var, material)];
+                        if (totalProduced == totalFailures)
+                        {
+                            FPYbyProcessAndModel.Add((var, material), 50);
+                        }
+                        else
+                        {
+                            double fpy = (double)(totalProduced - totalFailures) / totalProduced * 100;
+                            FPYbyProcessAndModel.Add((var, material), fpy);
+                        }
+                    }
+                    else
+                    {
+                        FPYbyProcessAndModel.Add((var, material), 100);
+                    }
+                }
+
+                TotalFPYbyProcessAndModel.Add(FPYbyProcessAndModel);
+
+                //-------------Genera reporte de FPY por proceso y modelo-----------//
+
                 List<ReportFPYByProcessAndModel> ReportFPYbyProcessAndModel = new List<ReportFPYByProcessAndModel>();
 
-                foreach ((string var, string Material) in totalProducedByProcessAndModel.Keys)
+                foreach ((string var, string material) in totalProducedByProcessAndModel.Keys)
                 {
-                    if (totalFailuresByProcessAndModel.ContainsKey((var, Material)) && FPYByProcessAndModel.ContainsKey((var, Material)) && totalsByProcessAndModel.ContainsKey((var, Material)))
+                    if (totalFailuresByProcessAndModel.ContainsKey((var, material)) && FPYbyProcessAndModel.ContainsKey((var, material)) && totalsByProcessAndModel.ContainsKey((var, material)))
                     {
                         ReportFPYByProcessAndModel data = new ReportFPYByProcessAndModel
                         {
                             Var = var,
-                            Material = Material,
-                            TotalProduced = totalProducedByProcessAndModel[(var, Material)],
-                            TotalFailures = totalFailuresByProcessAndModel[(var, Material)],
-                            Total = totalsByProcessAndModel[(var, Material)],
-                            FPY = FPYByProcessAndModel[(var, Material)],
+                            Material = material,
+                            TotalProduced = totalProducedByProcessAndStation[(var, material)],
+                            TotalFailures = totalFailuresByProcessAndStation[(var, material)],
+                            Total = totalsByProcessAndStation[(var, material)],
+                            FPY = FPYbyProcessAndStation[(var, material)],
                         };
                         ReportFPYbyProcessAndModel.Add(data);
                     }
